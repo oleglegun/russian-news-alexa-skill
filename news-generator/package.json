@@ -1,0 +1,23 @@
+{
+  "name": "news-generator",
+  "version": "0.0.1",
+  "description": "News generator lambda function for \"Russian News\" alexa skill",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "yarn copy-files; yarn make-zip; yarn upload; yarn clean",
+    "copy-files": "cp -r src/* dist; cp -r node_modules dist/; cp -r config dist/",
+    "make-zip": "cd dist; zip -r ../lambda.zip *; cd -",
+    "upload": "aws lambda update-function-code --function-name RussianNewsGenerator --zip-file fileb://lambda.zip",
+    "clean": "rm lambda.zip; rm -rf dist/*"
+  },
+  "author": "Oleg Legun",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.211.0",
+    "config": "^1.30.0",
+    "feedparser": "^2.2.9",
+    "moment": "^2.21.0",
+    "request": "^2.85.0",
+    "xml2js": "^0.4.19"
+  }
+}
