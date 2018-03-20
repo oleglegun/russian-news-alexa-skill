@@ -1,7 +1,7 @@
 const request = require('request')
 const FeedParser = require('feedparser')
 const { text2SSML } = require('./ssml')
-const { md5Hash, dateString } = require('./helpers')
+const { addSSML, md5Hash, dateString } = require('./helpers')
 const config = require('config')
 
 const AWS = require('aws-sdk')
@@ -14,18 +14,7 @@ const LAMBDA_NAME = process.env['LAMBDA_NAME']
 const DDB_TABLE_NAME = process.env['DDB_TABLE_NAME']
 const FEED_URL = process.env['FEED_URL']
 const SQS_URL = process.env['SQS_URL']
-
-// steps
-
-// get rss and parse
-// generate hashes (ids) for news based on its url
-// get news for 2 days from DDB (date > today - 2 days)
-// identify non-existent news (check hashes for equality)
-// process each non-existent news
-//      apply ssml
-//      send to polly
-//      upload to s3
-//      save into DDB/News
+const S3_BUCKET_NAME = process.env['S3_BUCKET_NAME']
 
 const getNews = function(feedURL) {
     publishToSQS('GET_NEWS_STARTED')
@@ -67,17 +56,55 @@ const getNews = function(feedURL) {
                     date: item.date.toString(),
                     title: item.title,
                     text: item.summary,
-                    ssml: text2SSML(item.summary, config.get('SSML')),
+                    // ssml: text2SSML(item.summary, config.get('SSML')),
                     url: item.link,
-                    image: item.enclosures[0].url,
+                    image: item.enclosures[0] && item.enclosures[0].url,
                 })
             }
         })
     })
 }
 
+const identifyFreshNews = function(news) {
+    publishToSQS('IDENTIFY_FRESH_NEWS')
+
+    return new Promise((resolve, reject) => {
+        // generate query requests as array of promises
+        const promises = news.map(item => {
+            const params = {
+                TableName: DDB_TABLE_NAME,
+                ExpressionAttributeValues: {
+                    ':id': item.id,
+                },
+                KeyConditionExpression: 'NewsId=:id',
+            }
+
+            return DDB.query(params).promise()
+        })
+
+        Promise.all(promises).then(items => {
+            // return
+
+            const freshNews = []
+            items.forEach((item, idx) => {
+                // if item exists in table (already processed) => skip it
+                if (item.Count === 0) {
+                    // if not found => doesn't exist => add it to freshNews
+                    freshNews.push(news[idx])
+                }
+            })
+            resolve(freshNews)
+        })
+    })
+}
+
 const putNewsToDynamo = function(news) {
     publishToSQS('PUT_NEWS_TO_DYNAMO_STARTED')
+
+    if (news.length === 0) {
+        console.log('---', 'No new items')
+        return
+    }
 
     return new Promise((resolve, reject) => {
         const newsItems = news.map(item => {
@@ -90,6 +117,7 @@ const putNewsToDynamo = function(news) {
                         Title: item.title,
                         Text: item.text,
                         SourceURL: item.url,
+                        AudioURL: item.audio_url,
                         ImageURL: item.image,
                     },
                 },
@@ -100,6 +128,7 @@ const putNewsToDynamo = function(news) {
             RequestItems: {
                 [DDB_TABLE_NAME]: [...newsItems],
             },
+            // ReturnValues: 'UPDATED_NEW',
         }
 
         DDB.batchWrite(params, (err, data) => {
@@ -110,6 +139,8 @@ const putNewsToDynamo = function(news) {
 }
 
 const synthesizeSpeech = function(ssml) {
+    console.log('---', 'synthesizing')
+
     const params = {
         OutputFormat: 'mp3',
         VoiceId: 'Maxim',
@@ -120,7 +151,17 @@ const synthesizeSpeech = function(ssml) {
     return Polly.synthesizeSpeech(params).promise()
 }
 
-const uploadAudioToS3 = function() {}
+const uploadAudioToS3 = function(stream, key) {
+    console.log('---', 'uploading to S3', key)
+    const params = {
+        Bucket: S3_BUCKET_NAME,
+        Key: key,
+        Body: stream,
+        ACL: 'public-read',
+    }
+
+    return S3.upload(params).promise()
+}
 
 const publishToSQS = function(message) {
     const params = {
@@ -143,19 +184,43 @@ const publishToSQS = function(message) {
         .then(() => console.log(message))
 }
 
-/*-----------------------------------------------------------------------------
- *  Helpers
- *----------------------------------------------------------------------------*/
-
 exports.handler = function(event, context, callback) {
     publishToSQS('STARTED')
+
     getNews(FEED_URL)
+        .then(identifyFreshNews)
+        .then(freshNews => addSSML(freshNews, config.get('SSML')))
+        .then(freshNewsWithSSML => {
+            return new Promise((resolve, reject) => {
+                const processedNews = []
+                console.log('---', 'processing news')
+
+                // generate audio and upload to S3 concurrently
+                const promises = freshNewsWithSSML.map(item => {
+                    return new Promise((resolve, reject) => {
+                        synthesizeSpeech(item.ssml)
+                            .then(data => uploadAudioToS3(data.AudioStream, `news/${item.id}.mp3`))
+                            .then(data => {
+                                console.log('---', 'processed', item.id, data.Location)
+                                processedNews.push(Object.assign({}, item, { audio_url: data.Location }))
+                                resolve()
+                            })
+                            .catch(err => {
+                                throw new Error(err, err.stack)
+                            })
+                    })
+                })
+                
+                // Wait for all requests to finish and return final news array
+                Promise.all(promises)
+                    .then(() => resolve(processedNews))
+                    .catch(reject)
+            })
+        })
         .then(putNewsToDynamo)
         .then((news, data) => {
             // process all new news
-            news.forEach(item => {
-                synthesizeSpeech()
-            })
+            console.log('---', data)
         })
         .catch(console.log)
 }

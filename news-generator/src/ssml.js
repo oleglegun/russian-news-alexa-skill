@@ -1,5 +1,4 @@
-const text2SSML = function (text, config) {
-
+const text2SSML = function(text, config) {
     const { globalVolume, country, rate } = config
 
     let lng
@@ -50,12 +49,12 @@ const text2SSML = function (text, config) {
             )
     }
 
-    const openTags = rt + lng
+    const openTags = (rt ? rt : '') + lng
     const closeTags = '</lang>' + (rt ? '</prosody>' : '')
 
     const textLength = text.length
 
-    let result = '<speak>' + vlm
+    let result = vlm
     let started
     let startPos
 
@@ -79,10 +78,10 @@ const text2SSML = function (text, config) {
         }
     }
 
-    return result + (vlm ? '</prosody>' : '') + '</speak>'
+    return result + (vlm ? '</prosody>' : '')
 }
 
-const isLatinChar = function (char) {
+const isLatinChar = function(char) {
     const cp = char.codePointAt(0)
     return (cp > 64 && cp < 91) || (cp > 96 && cp < 123)
 }
