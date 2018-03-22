@@ -8,6 +8,7 @@ const {
     publishToSQS,
 } = require('./aws')
 const { addSSML } = require('./helpers')
+const { NoFreshNewsError } = require('./errors')
 
 const FEED_URL = process.env['FEED_URL']
 
@@ -20,6 +21,7 @@ exports.handler = function(event, context, callback) {
         .then(freshNewsWithSSML => {
             return new Promise((resolve, reject) => {
                 const processedNews = []
+                publishToSQS('PROCESSING_FRESH_NEWS_START')
 
                 // generate audio and upload to S3 concurrently
                 const promises = freshNewsWithSSML.map(item => {
@@ -27,30 +29,40 @@ exports.handler = function(event, context, callback) {
                         synthesizeSpeech(item.ssml)
                             .then(data => uploadAudioToS3(data.AudioStream, `news/${item.id}.mp3`))
                             .then(data => {
-                                console.log('---', 'processed', item.id, data.Location)
                                 processedNews.push(
                                     Object.assign({}, item, { audio_url: data.Location })
                                 )
                                 resolve()
                             })
                             .catch(err => {
-                                throw new Error(err, err.stack)
+                                console.log(item)
+                                reject(err)
                             })
                     })
                 })
 
                 // Wait for all requests to finish and return news array with S3 urls
                 Promise.all(promises)
-                    .then(() => resolve(processedNews))
-                    .catch(reject)
+                    .then(() => {
+                        publishToSQS('PROCESSING_FRESH_NEWS_SUCCESS')
+                        resolve(processedNews)
+                    })
+                    .catch(err => {
+                        publishToSQS('PROCESSING_FRESH_NEWS_ERROR')
+                        reject(err)
+                    })
             })
         })
         .then(putNewsToDynamo)
         .then((news, data) => {
             publishToSQS('FINISH')
         })
-        .catch(reason => {
-            console.log(reason)
+        .catch(err => {
+            if (err instanceof NoFreshNewsError) {
+                console.log('No fresh news found.')
+            } else {
+                console.log(err, err.stack)
+            }
             publishToSQS('FINISH')
         })
 }

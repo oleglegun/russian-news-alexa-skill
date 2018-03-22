@@ -2,6 +2,7 @@ const request = require('request')
 const FeedParser = require('feedparser')
 const { text2SSML } = require('./ssml')
 const { md5Hash, dateString } = require('./helpers')
+const { NoFreshNewsError } = require('./errors')
 
 const AWS = require('aws-sdk')
 const DDB = new AWS.DynamoDB.DocumentClient()
@@ -19,14 +20,14 @@ const S3_BUCKET_NAME = process.env['S3_BUCKET_NAME']
 const getNews = function(feedURL) {
     publishToSQS('GET_NEWS_START')
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         const req = request(feedURL)
         const feedparser = new FeedParser()
 
         const news = []
 
-        req.on('error', function(error) {
-            throw error
+        req.on('error', function(err) {
+            reject(err)
         })
 
         req.on('response', function(res) {
@@ -39,11 +40,15 @@ const getNews = function(feedURL) {
             }
         })
 
-        feedparser.on('error', function(error) {
-            throw error
+        feedparser.on('error', function(err) {
+            reject(err)
         })
 
-         
+        feedparser.on('end', function() {
+            publishToSQS('GET_NEWS_SUCCESS')
+            console.log(`Got ${news.length} news.`)
+            resolve(news)
+        })
 
         feedparser.on('readable', function() {
             const stream = this // `this` is `feedparser`, which is a stream
@@ -56,18 +61,21 @@ const getNews = function(feedURL) {
                     title: item.title,
                     text: item.summary,
                     url: item.link,
-                    image: item.enclosures[0] && item.enclosures[0].url,
+                    // sometimes item.enclosures can be undefined
+                    image: item.enclosures && item.enclosures[0] && item.enclosures[0].url,
                 })
             }
         })
     })
 }
 
+// Check if news array contains any fresh news
+// returns array with fresh news
 const identifyFreshNews = function(news) {
     publishToSQS('IDENTIFY_FRESH_NEWS_START')
 
     return new Promise((resolve, reject) => {
-        // generate query requests as array of promises
+        // generate DynamoDB query requests as array of promises
         const promises = news.map(item => {
             const params = {
                 TableName: DDB_TABLE_NAME,
@@ -81,9 +89,9 @@ const identifyFreshNews = function(news) {
         })
 
         Promise.all(promises).then(items => {
-            // return
-
             const freshNews = []
+
+            // Populate freshNews array
             items.forEach((item, idx) => {
                 // if item exists in table (already processed) => skip it
                 if (item.Count === 0) {
@@ -95,8 +103,7 @@ const identifyFreshNews = function(news) {
             publishToSQS('IDENTIFY_FRESH_NEWS_SUCCESS')
 
             if (freshNews.length === 0) {
-                console.log(`No fresh news found.`)
-                reject('No fresh news found.')
+                reject(new NoFreshNewsError())
             } else {
                 console.log(`Found ${freshNews.length} fresh news.`)
                 resolve(freshNews)
@@ -156,7 +163,7 @@ const synthesizeSpeech = function(ssml) {
 }
 
 const uploadAudioToS3 = function(stream, key) {
-    console.log('---', 'uploading to S3', key)
+    console.log('Uploading to S3:', key)
     const params = {
         Bucket: S3_BUCKET_NAME,
         Key: key,
@@ -168,6 +175,7 @@ const uploadAudioToS3 = function(stream, key) {
 }
 
 const publishToSQS = function(message) {
+    console.log(message)
     const params = {
         // MessageAttributes: {
         //     Title: {
@@ -184,8 +192,6 @@ const publishToSQS = function(message) {
         MessageGroupId: dateString(),
     }
     SQS.sendMessage(params)
-        .promise()
-        .then(() => console.log(message))
 }
 
 module.exports = {
