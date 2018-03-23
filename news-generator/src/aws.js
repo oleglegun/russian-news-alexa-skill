@@ -14,6 +14,7 @@ const LAMBDA_NAME = process.env['LAMBDA_NAME']
 const DDB_TABLE_NAME = process.env['DDB_TABLE_NAME']
 const SQS_URL = process.env['SQS_URL']
 const S3_BUCKET_NAME = process.env['S3_BUCKET_NAME']
+const DEBUG = process.env['DEBUG']
 
 // gets news from RSS feed
 // returns array with news
@@ -21,6 +22,8 @@ const getNews = function(feedURL) {
     publishToSQS('GET_NEWS_START')
 
     return new Promise((resolve, reject) => {
+        if (DEBUG) console.log('URL:', feedURL)
+
         const req = request(feedURL)
         const feedparser = new FeedParser()
 
@@ -36,6 +39,10 @@ const getNews = function(feedURL) {
             if (res.statusCode !== 200) {
                 this.emit('error', new Error('Bad status code'))
             } else {
+                if (DEBUG) {
+                    console.log('RSS response')
+                    stream.pipe(process.stdout)
+                }
                 stream.pipe(feedparser)
             }
         })
@@ -163,6 +170,13 @@ const synthesizeSpeech = function(ssml) {
 }
 
 const uploadAudioToS3 = function(stream, key) {
+    if (DEBUG) {
+        console.log('Skip S3 upload.')
+        return Promise.resolve({
+            Location: 'https://site.com',
+        })
+    }
+
     console.log('Uploading to S3:', key)
     const params = {
         Bucket: S3_BUCKET_NAME,
