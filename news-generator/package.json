@@ -1,5 +1,5 @@
 {
-  "name": "news-generator",
+  "name": "russian-news-generator",
   "version": "0.0.1",
   "description": "News generator lambda function for \"Russian News\" alexa skill",
   "main": "index.js",
@@ -11,7 +11,7 @@
     "clean": "rm lambda.zip; rm -rf dist/*"
   },
   "author": "Oleg Legun",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.211.0",
     "config": "^1.30.0",

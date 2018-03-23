@@ -1,0 +1,19 @@
+{
+  "name": "russian-news-alexa-handler",
+  "version": "0.0.1",
+  "description": "Handler lambda function for Alexa skill \"Russian News\"",
+  "main": "index.js",
+  "author": "Oleg Legun",
+  "license": "MIT",
+  "dependencies": {
+    "alexa-sdk": "^1.0.25",
+    "aws-sdk": "^2.213.1"
+  },
+  "scripts": {
+    "deploy": "yarn copy-files; yarn make-zip; yarn upload; yarn clean",
+    "copy-files": "cp -r src/* dist; cp -r node_modules dist/; cp -r config dist/",
+    "make-zip": "cd dist; zip -r ../lambda.zip *; cd -",
+    "upload": "aws lambda update-function-code --function-name RussianNewsAlexaHandler --zip-file fileb://lambda.zip",
+    "clean": "rm lambda.zip; rm -rf dist/*"
+  }
+}
