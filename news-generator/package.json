@@ -1,23 +1,26 @@
 {
-  "name": "russian-news-generator",
-  "version": "0.0.1",
-  "description": "News generator lambda function for \"Russian News\" alexa skill",
-  "main": "index.js",
-  "scripts": {
-    "deploy": "yarn copy-files; yarn make-zip; yarn upload; yarn clean",
-    "copy-files": "cp -r src/* dist; cp -r node_modules dist/; cp -r config dist/",
-    "make-zip": "cd dist; zip -r ../lambda.zip *; cd -",
-    "upload": "aws lambda update-function-code --function-name RussianNewsGenerator --zip-file fileb://lambda.zip",
-    "clean": "rm lambda.zip; rm -rf dist/*"
-  },
-  "author": "Oleg Legun",
-  "license": "MIT",
-  "dependencies": {
-    "aws-sdk": "^2.211.0",
-    "config": "^1.30.0",
-    "feedparser": "^2.2.9",
-    "moment": "^2.21.0",
-    "request": "^2.85.0",
-    "xml2js": "^0.4.19"
-  }
+    "name": "russian-news-generator",
+    "version": "0.0.1",
+    "description": "News generator lambda function for \"Russian News\" alexa skill",
+    "main": "index.js",
+    "scripts": {
+        "deploy": "bash ./deploy.sh"
+    },
+    "author": "Oleg Legun",
+    "license": "MIT",
+    "dependencies": {
+        "@types/aws-sdk": "^2.7.0",
+        "@types/config": "^0.0.34",
+        "@types/feedparser": "^2.2.1",
+        "@types/moment": "^2.13.0",
+        "@types/node": "^10.5.1",
+        "@types/request": "^2.47.1",
+        "aws-sdk": "^2.266.1",
+        "config": "^1.30.0",
+        "feedparser": "^2.2.9",
+        "moment": "^2.22.2",
+        "polly-ru-ssml": "^0.1.5",
+        "request": "^2.87.0",
+        "striptags": "^3.1.1"
+    }
 }
