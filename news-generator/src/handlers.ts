@@ -8,26 +8,31 @@ import {
     todayDateString,
 } from './helpers'
 
-const FEED_URL = process.env['FEED_URL']
-
 async function generateNews() {
     log('START')
 
-    const todayDate = todayDateString()
-    const allNews = await getNews(FEED_URL)
-    const todayNews = filterNewsByDate(allNews, todayDate)
-    const processedNewsMap = await getNewsFromDynamo(todayDate)
-    const unprocessedNews = identifyUnprocessedNews(todayNews, processedNewsMap)
+    try {
+        const todayDate = todayDateString()
 
-    if (unprocessedNews.length === 0) {
-        log('FINISH')
-        return
+        const allNews = await getNews()
+        const todayNews = filterNewsByDate(allNews, todayDate)
+        const processedNewsMap = await getNewsFromDynamo(todayDate)
+        const unprocessedNews = identifyUnprocessedNews(todayNews, processedNewsMap)
+
+        if (unprocessedNews.length === 0) {
+            log('FINISH')
+            return
+        }
+        const newsWithSSML = addSSML(unprocessedNews, config.get('SSML'))
+        const newsWithAudioMap = await processNews(newsWithSSML)
+
+        const mergedNews = mergeNews(processedNewsMap, newsWithAudioMap)
+        await putNewsToDynamo(todayDate, mergedNews)
+    } catch (error) {
+        log('FINISH_WITH_ERROR')
+        log(error)
+        process.exit(1)
     }
-    const newsWithSSML = addSSML(unprocessedNews, config.get('SSML'))
-    const newsWithAudioMap = await processNews(newsWithSSML)
-
-    const mergedNews = mergeNews(processedNewsMap, newsWithAudioMap)
-    await putNewsToDynamo(todayDate, mergedNews)
 
     log('FINISH')
 }

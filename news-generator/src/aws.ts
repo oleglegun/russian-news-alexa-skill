@@ -2,6 +2,7 @@ import * as AWS from 'aws-sdk'
 import * as feedParser from 'feedparser'
 import * as request from 'request'
 import * as striptags from 'striptags'
+import { UnsetEnvironmentVariableError } from './errors'
 import { log, md5Hash, newsItemRSSToDDBWithAudio } from './helpers'
 import { INewsItemMapDDB, INewsItemRSS, INewsItemRSSWithSSML } from './types'
 
@@ -9,16 +10,22 @@ const DocumentClient = new AWS.DynamoDB.DocumentClient()
 const S3 = new AWS.S3()
 const Polly = new AWS.Polly()
 
-const DDB_TABLE_NAME = process.env['DDB_TABLE_NAME']
-const S3_BUCKET_NAME = process.env['S3_BUCKET_NAME']
-const DEBUG = process.env['DEBUG']
+const FEED_URL = process.env['FEED_URL']
+let DDB_TABLE_NAME = process.env['DDB_TABLE_NAME']
+let S3_BUCKET_NAME = process.env['DDB_TABLE_NAME']
+let DEBUG = process.env['DEBUG']
 
 /** Gets news from RSS feed */
-function getNews(feedURL: string): Promise<INewsItemRSS[]> {
-    log('GET_NEWS_START:', feedURL)
-
+function getNews(): Promise<INewsItemRSS[]> {
     return new Promise((resolve, reject) => {
-        const req = request(feedURL)
+        if (!FEED_URL) {
+            reject(new UnsetEnvironmentVariableError('FEED_URL'))
+            return
+        }
+
+        log('GET_NEWS_START:', FEED_URL)
+
+        const req = request(FEED_URL)
         const feedparser = new feedParser({})
 
         const news: INewsItemRSS[] = []
@@ -72,11 +79,16 @@ function getNews(feedURL: string): Promise<INewsItemRSS[]> {
 /** Get news from DynamoDB by date */
 function getNewsFromDynamo(date: string): Promise<INewsItemMapDDB> {
     return new Promise((resolve, reject) => {
-        const params = {
+        if (!DDB_TABLE_NAME) {
+            reject(new UnsetEnvironmentVariableError('DDB_TABLE_NAME'))
+            return
+        }
+
+        const params: AWS.DynamoDB.DocumentClient.GetItemInput = {
+            TableName: DDB_TABLE_NAME,
             Key: {
                 Date: date,
             },
-            TableName: DDB_TABLE_NAME,
         }
 
         DocumentClient.get(params, (err, data) => {
@@ -98,7 +110,12 @@ function putNewsToDynamo(date: string, news: INewsItemMapDDB) {
     log('PUT_NEWS_TO_DYNAMO_START')
 
     return new Promise((resolve, reject) => {
-        const params = {
+        if (!DDB_TABLE_NAME) {
+            reject(new UnsetEnvironmentVariableError('DDB_TABLE_NAME'))
+            return
+        }
+
+        const params: AWS.DynamoDB.DocumentClient.PutItemInput = {
             TableName: DDB_TABLE_NAME,
             Item: {
                 Date: date,
@@ -148,6 +165,10 @@ function synthesizeSpeech(ssml) {
 
 function uploadAudioToS3(stream, key) {
     console.log('Uploading to S3:', key)
+
+    if (!S3_BUCKET_NAME) {
+        throw new UnsetEnvironmentVariableError('S3_BUCKET_NAME')
+    }
 
     const params = {
         ACL: 'public-read',

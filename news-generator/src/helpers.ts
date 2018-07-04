@@ -23,8 +23,7 @@ function identifyUnprocessedNews(
     processedNews: INewsItemMapDDB
 ): INewsItemRSS[] {
     log('IDENTIFY_UNPROCESSED_NEWS_START')
-
-    const unprocessedNews = []
+    const unprocessedNews: INewsItemRSS[] = []
 
     allNews.forEach(item => {
         if (processedNews[item.id] === undefined) {
@@ -61,7 +60,7 @@ function newsItemRSSToDDBWithAudio(newsItem: INewsItemRSS, audioURL: string): IN
         Title: newsItem.title,
         SourceURL: newsItem.sourceURL,
         AudioURL: audioURL,
-        ImageURL: newsItem.imageURL
+        ImageURL: newsItem.imageURL ? newsItem.imageURL : '',
     }
 }
 
@@ -73,7 +72,7 @@ function mergeNews(
 }
 
 function filterNewsByDate(news: INewsItemRSS[], date: string): INewsItemRSS[] {
-    const filteredNews = []
+    const filteredNews: INewsItemRSS[] = []
 
     news.forEach(item => {
         if (moment(item.date).isSame(date, 'day')) {

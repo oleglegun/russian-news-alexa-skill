@@ -1,6 +1,6 @@
-export class NoFreshNewsError extends Error {
-    constructor() {
-        super()
-        this.name = 'No Fresh News Found'
+export class UnsetEnvironmentVariableError extends Error {
+    constructor(variableName: string) {
+        super(`Environment variable "${variableName}" is not set.`)
+        this.name = this.constructor.name
     }
 }
