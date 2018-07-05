@@ -12,13 +12,9 @@ export interface INewsItemRSSWithSSML extends INewsItemRSS {
 }
 
 export interface INewsItemDDB {
-    Timestamp: string
+    Id: string
     Title: string
     SourceURL: string
     AudioURL: string
     ImageURL: string
-}
-
-export interface INewsItemMapDDB {
-    [id: string]: INewsItemDDB
 }

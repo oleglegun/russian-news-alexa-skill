@@ -2,7 +2,7 @@ import * as crypto from 'crypto'
 import * as moment from 'moment'
 import * as pollyRuSSML from 'polly-ru-ssml'
 
-import { INewsItemDDB, INewsItemMapDDB, INewsItemRSS, INewsItemRSSWithSSML } from './types'
+import { INewsItemDDB, INewsItemRSS, INewsItemRSSWithSSML } from './types'
 
 const DEBUG = process.env['DEBUG']
 
@@ -13,22 +13,22 @@ function md5Hash(text) {
         .digest('hex')
 }
 
-function todayDateString() {
-    return moment().format('YYYYMMDD')
-}
-
 /** Check if news array contains any fresh news */
 function identifyUnprocessedNews(
     allNews: INewsItemRSS[],
-    processedNews: INewsItemMapDDB
+    processedNews: INewsItemDDB[]
 ): INewsItemRSS[] {
     log('IDENTIFY_UNPROCESSED_NEWS_START')
     const unprocessedNews: INewsItemRSS[] = []
 
     allNews.forEach(item => {
-        if (processedNews[item.id] === undefined) {
-            unprocessedNews.push(item)
+        for (const processedItem of processedNews) {
+            if (processedItem.Id === item.id) {
+                return
+            }
         }
+
+        unprocessedNews.push(item)
     })
 
     log('IDENTIFY_UNPROCESSED_NEWS_FINISH: Found', unprocessedNews.length.toString(), 'news.')
@@ -37,15 +37,15 @@ function identifyUnprocessedNews(
 }
 
 // adds ssml field with generated ssml tags to each object in news array
-function addSSML(news: INewsItemRSS[], ssmlConfig): INewsItemRSSWithSSML[] {
+function addSSML(news: INewsItemRSS[]): INewsItemRSSWithSSML[] {
     const newsWithSSML: INewsItemRSSWithSSML[] = []
 
     for (const item of news) {
         const ssml =
             '<speak>' +
-            pollyRuSSML.ssml(item.title, ssmlConfig) +
+            pollyRuSSML.ssml(item.title) +
             '<break time="1s"/>' +
-            pollyRuSSML.ssml(item.text, ssmlConfig) +
+            pollyRuSSML.ssml(item.text) +
             '</speak>'
 
         newsWithSSML.push(Object.assign({}, item, { ssml }))
@@ -56,7 +56,8 @@ function addSSML(news: INewsItemRSS[], ssmlConfig): INewsItemRSSWithSSML[] {
 
 function newsItemRSSToDDBWithAudio(newsItem: INewsItemRSS, audioURL: string): INewsItemDDB {
     return {
-        Timestamp: newsItem.date,
+        // Timestamp: newsItem.date,
+        Id: newsItem.id,
         Title: newsItem.title,
         SourceURL: newsItem.sourceURL,
         AudioURL: audioURL,
@@ -64,23 +65,19 @@ function newsItemRSSToDDBWithAudio(newsItem: INewsItemRSS, audioURL: string): IN
     }
 }
 
-function mergeNews(
-    processedNewsMap: INewsItemMapDDB,
-    newsWithAudioMap: INewsItemMapDDB
-): INewsItemMapDDB {
-    return Object.assign({}, processedNewsMap, newsWithAudioMap)
+function sortNews(news: INewsItemRSS[]): INewsItemRSS[] {
+    return news.sort((a, b) => {
+        return moment(a.date).valueOf() - moment(b.date).valueOf()
+    })
 }
 
-function filterNewsByDate(news: INewsItemRSS[], date: string): INewsItemRSS[] {
-    const filteredNews: INewsItemRSS[] = []
+function limitNews(news: INewsItemDDB[], limit: number): INewsItemDDB[] {
+    const len = news.length
+    if (len <= limit) {
+        return news
+    }
 
-    news.forEach(item => {
-        if (moment(item.date).isSame(date, 'day')) {
-            filteredNews.push(item)
-        }
-    })
-
-    return filteredNews
+    return news.slice(len - limit)
 }
 
 function log(...msgs: string[]) {
@@ -91,11 +88,10 @@ function log(...msgs: string[]) {
 
 export {
     addSSML,
-    todayDateString,
-    filterNewsByDate,
     md5Hash,
-    mergeNews,
     newsItemRSSToDDBWithAudio,
     identifyUnprocessedNews,
     log,
+    sortNews,
+    limitNews,
 }

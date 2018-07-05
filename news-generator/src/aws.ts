@@ -2,30 +2,21 @@ import * as AWS from 'aws-sdk'
 import * as feedParser from 'feedparser'
 import * as request from 'request'
 import * as striptags from 'striptags'
+import { DDB_TABLE_NAME, DEBUG, S3_BUCKET_NAME } from './env'
 import { UnsetEnvironmentVariableError } from './errors'
 import { log, md5Hash, newsItemRSSToDDBWithAudio } from './helpers'
-import { INewsItemMapDDB, INewsItemRSS, INewsItemRSSWithSSML } from './types'
+import { INewsItemDDB, INewsItemRSS, INewsItemRSSWithSSML } from './types'
 
 const DocumentClient = new AWS.DynamoDB.DocumentClient()
 const S3 = new AWS.S3()
 const Polly = new AWS.Polly()
 
-const FEED_URL = process.env['FEED_URL']
-let DDB_TABLE_NAME = process.env['DDB_TABLE_NAME']
-let S3_BUCKET_NAME = process.env['DDB_TABLE_NAME']
-let DEBUG = process.env['DEBUG']
-
 /** Gets news from RSS feed */
-function getNews(): Promise<INewsItemRSS[]> {
+function getNews(feedURL: string): Promise<INewsItemRSS[]> {
     return new Promise((resolve, reject) => {
-        if (!FEED_URL) {
-            reject(new UnsetEnvironmentVariableError('FEED_URL'))
-            return
-        }
+        log('GET_NEWS_START:', feedURL)
 
-        log('GET_NEWS_START:', FEED_URL)
-
-        const req = request(FEED_URL)
+        const req = request(feedURL)
         const feedparser = new feedParser({})
 
         const news: INewsItemRSS[] = []
@@ -41,8 +32,8 @@ function getNews(): Promise<INewsItemRSS[]> {
                 this.emit('error', new Error('Bad status code'))
             } else {
                 // if (DEBUG) {
-                //     log('RSS response')
-                //     stream.pipe(process.stdout)
+                // log('RSS response')
+                // stream.pipe(process.stdout)
                 // }
                 stream.pipe(feedparser)
             }
@@ -54,6 +45,7 @@ function getNews(): Promise<INewsItemRSS[]> {
 
         feedparser.on('end', () => {
             log('GET_NEWS_SUCCESS:', `Got ${news.length} news.`)
+            news.forEach((item, idx) => console.log(`${idx + 1}:`, item.title))
             resolve(news)
         })
 
@@ -76,8 +68,8 @@ function getNews(): Promise<INewsItemRSS[]> {
     })
 }
 
-/** Get news from DynamoDB by date */
-function getNewsFromDynamo(date: string): Promise<INewsItemMapDDB> {
+/** Get news from DynamoDB by key */
+function getNewsFromDynamo(key: string): Promise<INewsItemDDB[]> {
     return new Promise((resolve, reject) => {
         if (!DDB_TABLE_NAME) {
             reject(new UnsetEnvironmentVariableError('DDB_TABLE_NAME'))
@@ -87,7 +79,8 @@ function getNewsFromDynamo(date: string): Promise<INewsItemMapDDB> {
         const params: AWS.DynamoDB.DocumentClient.GetItemInput = {
             TableName: DDB_TABLE_NAME,
             Key: {
-                Date: date,
+                // TODO: Change to new name
+                Date: key,
             },
         }
 
@@ -96,7 +89,7 @@ function getNewsFromDynamo(date: string): Promise<INewsItemMapDDB> {
                 reject(err)
             } else {
                 if (!data.Item) {
-                    resolve({})
+                    resolve([])
                     return
                 }
 
@@ -106,7 +99,7 @@ function getNewsFromDynamo(date: string): Promise<INewsItemMapDDB> {
     })
 }
 
-function putNewsToDynamo(date: string, news: INewsItemMapDDB) {
+function putNewsToDynamo(key: string, news: INewsItemDDB[]) {
     log('PUT_NEWS_TO_DYNAMO_START')
 
     return new Promise((resolve, reject) => {
@@ -118,7 +111,8 @@ function putNewsToDynamo(date: string, news: INewsItemMapDDB) {
         const params: AWS.DynamoDB.DocumentClient.PutItemInput = {
             TableName: DDB_TABLE_NAME,
             Item: {
-                Date: date,
+                // TODO: change to new name
+                Date: key,
                 Items: news,
             },
         }
@@ -136,20 +130,19 @@ function putNewsToDynamo(date: string, news: INewsItemMapDDB) {
 }
 
 /** Generate audio and save it to S3. */
-async function processNews(news: INewsItemRSSWithSSML[]): Promise<INewsItemMapDDB> {
-    const newsWithAudioMap: INewsItemMapDDB = {}
+async function processNews(news: INewsItemRSSWithSSML[]): Promise<INewsItemDDB[]> {
+    const newsWithAudio: INewsItemDDB[] = []
 
     const promises = news.map(async item => {
         const { AudioStream } = await synthesizeSpeech(item.ssml)
         const { Location } = await uploadAudioToS3(AudioStream, `news/${item.id}.mp3`)
-
-        newsWithAudioMap[item.id] = newsItemRSSToDDBWithAudio(item, Location)
+        newsWithAudio.push(newsItemRSSToDDBWithAudio(item, Location))
     })
 
     await Promise.all(promises)
     log('ALL_FILES_UPLOADED_SUCCESSFULLY')
 
-    return Promise.resolve(newsWithAudioMap)
+    return Promise.resolve(newsWithAudio)
 }
 
 function synthesizeSpeech(ssml) {

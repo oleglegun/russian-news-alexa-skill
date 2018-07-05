@@ -30,6 +30,9 @@ export async function handler(event, context, callback) {
                     body: err.message,
                     statusCode: 500,
                 }
+
+                callback(err)
+                return
             }
     }
 

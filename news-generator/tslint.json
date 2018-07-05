@@ -11,8 +11,7 @@
         "no-conditional-assignment": false,
         "trailing-comma": false,
         "object-literal-sort-keys": false,
-        "no-unused-variable": true,
-        
+        "no-unused-variable": true
     },
     "rulesDirectory": []
 }

@@ -1,37 +1,34 @@
-import * as config from 'config'
 import { getNews, getNewsFromDynamo, log, processNews, putNewsToDynamo } from './aws'
-import {
-    addSSML,
-    filterNewsByDate,
-    identifyUnprocessedNews,
-    mergeNews,
-    todayDateString,
-} from './helpers'
+import { FEED_URL, NEWS_LIMIT } from './env'
+import { UnsetEnvironmentVariableError } from './errors'
+import { addSSML, identifyUnprocessedNews, limitNews, sortNews } from './helpers'
 
 async function generateNews() {
+    if (!FEED_URL) {
+        throw new UnsetEnvironmentVariableError('FEED_URL')
+    }
     log('START')
 
     try {
-        const todayDate = todayDateString()
-
-        const allNews = await getNews()
-        const todayNews = filterNewsByDate(allNews, todayDate)
-        const processedNewsMap = await getNewsFromDynamo(todayDate)
-        const unprocessedNews = identifyUnprocessedNews(todayNews, processedNewsMap)
+        const allNews = await getNews(FEED_URL)
+        const processedNews = await getNewsFromDynamo('0')
+        const unprocessedNews = identifyUnprocessedNews(allNews, processedNews)
 
         if (unprocessedNews.length === 0) {
             log('FINISH')
             return
         }
-        const newsWithSSML = addSSML(unprocessedNews, config.get('SSML'))
-        const newsWithAudioMap = await processNews(newsWithSSML)
+        // sort (old -> new)
+        const newsWithSSML = addSSML(sortNews(unprocessedNews))
+        const newsWithAudio = await processNews(newsWithSSML)
 
-        const mergedNews = mergeNews(processedNewsMap, newsWithAudioMap)
-        await putNewsToDynamo(todayDate, mergedNews)
+        const mergedNews = processedNews.concat(newsWithAudio)
+
+        await putNewsToDynamo('0', limitNews(mergedNews, NEWS_LIMIT))
     } catch (error) {
         log('FINISH_WITH_ERROR')
-        log(error)
-        process.exit(1)
+        // Pass error up to generate an appropriate HTTP error code
+        throw error
     }
 
     log('FINISH')
