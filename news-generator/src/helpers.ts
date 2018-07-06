@@ -56,7 +56,6 @@ function addSSML(news: INewsItemRSS[]): INewsItemRSSWithSSML[] {
 
 function newsItemRSSToDDBWithAudio(newsItem: INewsItemRSS, audioURL: string): INewsItemDDB {
     return {
-        // Timestamp: newsItem.date,
         Id: newsItem.id,
         Title: newsItem.title,
         SourceURL: newsItem.sourceURL,

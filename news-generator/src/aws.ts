@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk'
 import * as feedParser from 'feedparser'
 import * as request from 'request'
 import * as striptags from 'striptags'
-import { DDB_TABLE_NAME, DEBUG, S3_BUCKET_NAME } from './env'
+import { DDB_TABLE_NAME, S3_BUCKET_NAME } from './env'
 import { UnsetEnvironmentVariableError } from './errors'
 import { log, md5Hash, newsItemRSSToDDBWithAudio } from './helpers'
 import { INewsItemDDB, INewsItemRSS, INewsItemRSSWithSSML } from './types'
@@ -31,10 +31,6 @@ function getNews(feedURL: string): Promise<INewsItemRSS[]> {
             if (res.statusCode !== 200) {
                 this.emit('error', new Error('Bad status code'))
             } else {
-                // if (DEBUG) {
-                // log('RSS response')
-                // stream.pipe(process.stdout)
-                // }
                 stream.pipe(feedparser)
             }
         })
@@ -45,7 +41,8 @@ function getNews(feedURL: string): Promise<INewsItemRSS[]> {
 
         feedparser.on('end', () => {
             log('GET_NEWS_SUCCESS:', `Got ${news.length} news.`)
-            news.forEach((item, idx) => console.log(`${idx + 1}:`, item.title))
+            news.forEach((item, idx) => log(`${idx + 1}:`, item.title))
+
             resolve(news)
         })
 

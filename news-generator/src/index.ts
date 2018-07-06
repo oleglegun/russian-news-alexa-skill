@@ -1,6 +1,5 @@
+import { DEBUG } from './env'
 import { generateNews } from './handlers'
-
-const DEBUG = process.env['DEBUG']
 
 export async function handler(event, context, callback) {
     let response
@@ -19,7 +18,7 @@ export async function handler(event, context, callback) {
         case 'generate':
         default:
             try {
-                await generate()
+                await generateNews()
 
                 response = {
                     body: 'Successfully generated.',
@@ -37,8 +36,4 @@ export async function handler(event, context, callback) {
     }
 
     callback(null, response)
-}
-
-async function generate() {
-    await generateNews()
 }

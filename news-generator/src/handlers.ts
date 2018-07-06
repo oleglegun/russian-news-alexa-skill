@@ -1,5 +1,5 @@
 import { getNews, getNewsFromDynamo, log, processNews, putNewsToDynamo } from './aws'
-import { FEED_URL, NEWS_LIMIT } from './env'
+import { DDB_KEY, FEED_URL, NEWS_LIMIT } from './env'
 import { UnsetEnvironmentVariableError } from './errors'
 import { addSSML, identifyUnprocessedNews, limitNews, sortNews } from './helpers'
 
@@ -11,7 +11,7 @@ async function generateNews() {
 
     try {
         const allNews = await getNews(FEED_URL)
-        const processedNews = await getNewsFromDynamo('0')
+        const processedNews = await getNewsFromDynamo(DDB_KEY)
         const unprocessedNews = identifyUnprocessedNews(allNews, processedNews)
 
         if (unprocessedNews.length === 0) {
@@ -24,7 +24,7 @@ async function generateNews() {
 
         const mergedNews = processedNews.concat(newsWithAudio)
 
-        await putNewsToDynamo('0', limitNews(mergedNews, NEWS_LIMIT))
+        await putNewsToDynamo(DDB_KEY, limitNews(mergedNews, NEWS_LIMIT))
     } catch (error) {
         log('FINISH_WITH_ERROR')
         // Pass error up to generate an appropriate HTTP error code
