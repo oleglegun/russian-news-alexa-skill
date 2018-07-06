@@ -7,12 +7,9 @@ tsc
 cp -r node_modules dist
 cp -r config dist
 
-# remove aws-sdk
-# rm -rf dist/node_modules/aws-sdk
-
 # make zip
 cd dist
-zip -r ../lambda.zip *
+zip -r ../lambda.zip * -q
 cd -
 
 # upload

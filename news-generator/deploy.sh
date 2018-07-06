@@ -5,15 +5,14 @@ tsc
 
 # copy files
 cp -r node_modules dist
-cp -r config dist
 
 # remove aws-sdk
 rm -rf dist/node_modules/aws-sdk
 
 # make zip
 cd dist
-zip -r ../lambda.zip *
-cd -
+zip -r ../lambda.zip * -q
+cd - > /dev/null
 
 # upload
 aws lambda update-function-code --function-name RussianNewsGenerator --zip-file fileb://lambda.zip
