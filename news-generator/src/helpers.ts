@@ -13,7 +13,6 @@ function md5Hash(text) {
         .digest('hex')
 }
 
-/** Check if news array contains any fresh news */
 function identifyUnprocessedNews(
     allNews: INewsItemRSS[],
     processedNews: INewsItemDDB[]
@@ -36,7 +35,7 @@ function identifyUnprocessedNews(
     return unprocessedNews
 }
 
-// adds ssml field with generated ssml tags to each object in news array
+/** adds ssml field with generated ssml tags to each object in news array */
 function addSSML(news: INewsItemRSS[]): INewsItemRSSWithSSML[] {
     const newsWithSSML: INewsItemRSSWithSSML[] = []
 

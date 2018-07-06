@@ -2,7 +2,6 @@
     "name": "russian-news-generator",
     "version": "0.0.1",
     "description": "News generator lambda function for \"Russian News\" alexa skill",
-    "main": "index.js",
     "scripts": {
         "deploy": "bash ./deploy.sh"
     },
