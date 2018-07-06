@@ -2,8 +2,6 @@ import * as crypto from 'crypto'
 import * as moment from 'moment'
 import * as pollyRuSSML from 'polly-ru-ssml'
 
-import { INewsItemDDB, INewsItemRSS, INewsItemRSSWithSSML } from './types'
-
 const DEBUG = process.env['DEBUG']
 
 function md5Hash(text) {
@@ -86,10 +84,10 @@ function log(...msgs: string[]) {
 
 export {
     addSSML,
+    identifyUnprocessedNews,
+    limitNews,
+    log,
     md5Hash,
     newsItemRSSToDDBWithAudio,
-    identifyUnprocessedNews,
-    log,
     sortNews,
-    limitNews,
 }

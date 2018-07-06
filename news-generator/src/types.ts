@@ -1,4 +1,4 @@
-export interface INewsItemRSS {
+interface INewsItemRSS {
     id: string
     date: string
     title: string
@@ -7,11 +7,11 @@ export interface INewsItemRSS {
     imageURL?: string
 }
 
-export interface INewsItemRSSWithSSML extends INewsItemRSS {
+interface INewsItemRSSWithSSML extends INewsItemRSS {
     ssml: string
 }
 
-export interface INewsItemDDB {
+interface INewsItemDDB {
     Id: string
     Title: string
     SourceURL: string

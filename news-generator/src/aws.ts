@@ -5,7 +5,6 @@ import * as striptags from 'striptags'
 import { DDB_TABLE_NAME, S3_BUCKET_NAME } from './env'
 import { UnsetEnvironmentVariableError } from './errors'
 import { log, md5Hash, newsItemRSSToDDBWithAudio } from './helpers'
-import { INewsItemDDB, INewsItemRSS, INewsItemRSSWithSSML } from './types'
 
 const DocumentClient = new AWS.DynamoDB.DocumentClient()
 const S3 = new AWS.S3()
@@ -172,10 +171,10 @@ function uploadAudioToS3(stream, key) {
 
 export {
     getNews,
-    putNewsToDynamo,
     getNewsFromDynamo,
-    synthesizeSpeech,
-    processNews,
-    uploadAudioToS3,
     log,
+    processNews,
+    putNewsToDynamo,
+    synthesizeSpeech,
+    uploadAudioToS3,
 }
