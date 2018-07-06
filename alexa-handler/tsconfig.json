@@ -7,7 +7,7 @@
         "lib": ["es2015"],
         // "noImplicitAny": true,
         "strictNullChecks": true,
-        "typeRoots": []
+        "types": ["node"]
     },
     "include": ["./src/**/*"],
     "exclude": ["node_modules"]

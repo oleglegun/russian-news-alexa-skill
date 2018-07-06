@@ -4,8 +4,15 @@
     "description": "Handler lambda function for Alexa skill \"Russian News\"",
     "author": "Oleg Legun",
     "license": "MIT",
-    "dependencies": {},
+    "private": true,
+    "main": "index.js",
     "scripts": {
         "deploy": "bash ./deploy.sh"
+    },
+    "dependencies": {
+        "ask-sdk": "^2.0.7"
+    },
+    "devDependencies": {
+        "@types/node": "^10.5.2"
     }
 }

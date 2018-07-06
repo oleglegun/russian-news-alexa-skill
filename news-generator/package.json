@@ -2,18 +2,13 @@
     "name": "russian-news-generator",
     "version": "0.0.1",
     "description": "News generator lambda function for \"Russian News\" alexa skill",
+    "author": "Oleg Legun",
+    "license": "MIT",
+    "private": true,
     "scripts": {
         "deploy": "bash ./deploy.sh"
     },
-    "author": "Oleg Legun",
-    "license": "MIT",
     "dependencies": {
-        "@types/aws-sdk": "^2.7.0",
-        "@types/config": "^0.0.34",
-        "@types/feedparser": "^2.2.1",
-        "@types/moment": "^2.13.0",
-        "@types/node": "^10.5.1",
-        "@types/request": "^2.47.1",
         "aws-sdk": "^2.266.1",
         "config": "^1.30.0",
         "feedparser": "^2.2.9",
@@ -21,5 +16,13 @@
         "polly-ru-ssml": "^0.1.5",
         "request": "^2.87.0",
         "striptags": "^3.1.1"
+    },
+    "devDependencies": {
+        "@types/aws-sdk": "^2.7.0",
+        "@types/config": "^0.0.34",
+        "@types/feedparser": "^2.2.1",
+        "@types/moment": "^2.13.0",
+        "@types/node": "^10.5.1",
+        "@types/request": "^2.47.1"
     }
 }
