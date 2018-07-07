@@ -10,7 +10,7 @@ cp -r config dist
 # make zip
 cd dist
 zip -r ../lambda.zip * -q
-cd -
+cd - > /dev/null
 
 # upload
 aws lambda update-function-code --function-name RussianNewsAlexaHandler --zip-file fileb://lambda.zip

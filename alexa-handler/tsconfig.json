@@ -5,9 +5,8 @@
         "module": "commonjs",
         "sourceMap": false,
         "lib": ["es2015"],
-        // "noImplicitAny": true,
-        "strictNullChecks": true,
-        "types": ["node"]
+        "noImplicitAny": true,
+        "strictNullChecks": true
     },
     "include": ["./src/**/*"],
     "exclude": ["node_modules"]
