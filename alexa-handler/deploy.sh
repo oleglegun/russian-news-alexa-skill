@@ -2,18 +2,21 @@
 
 # compile typescript
 tsc
+echo 'tsc done'
 
 # copy files
 cp -r node_modules dist
-cp -r config dist
+echo 'copy files done'
 
 # make zip
 cd dist
 zip -r ../lambda.zip * -q
 cd - > /dev/null
+echo 'make zip done'
 
 # upload
 aws lambda update-function-code --function-name RussianNewsAlexaHandler --zip-file fileb://lambda.zip
 
 # clean
 rm lambda.zip; rm -rf dist
+echo 'clean done'
