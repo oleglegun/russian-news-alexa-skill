@@ -75,8 +75,7 @@ function getNewsFromDynamo(key: string): Promise<INewsItemDDB[]> {
         const params: AWS.DynamoDB.DocumentClient.GetItemInput = {
             TableName: DDB_TABLE_NAME,
             Key: {
-                // TODO: Change to new name
-                Date: key,
+                id: key,
             },
         }
 
@@ -89,7 +88,7 @@ function getNewsFromDynamo(key: string): Promise<INewsItemDDB[]> {
                     return
                 }
 
-                resolve(data.Item.Items)
+                resolve(data.Item.attributes)
             }
         })
     })
@@ -107,9 +106,8 @@ function putNewsToDynamo(key: string, news: INewsItemDDB[]) {
         const params: AWS.DynamoDB.DocumentClient.PutItemInput = {
             TableName: DDB_TABLE_NAME,
             Item: {
-                // TODO: change to new name
-                Date: key,
-                Items: news,
+                id: key,
+                attributes: news,
             },
         }
 
