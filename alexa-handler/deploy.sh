@@ -8,6 +8,10 @@ echo 'tsc done'
 cp -r node_modules dist
 echo 'copy files done'
 
+# remove aws-sdk
+rm -rf dist/node_modules/aws-sdk
+echo 'remove aws-sdk done'
+
 # make zip
 cd dist
 zip -r ../lambda.zip * -q
