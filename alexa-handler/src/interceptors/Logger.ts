@@ -1,9 +1,8 @@
 import * as ASK from 'ask-sdk'
+import { DEBUG } from '../env'
 
-const DEBUG = process.env['DEBUG']
-
-export const LoggerInterceptor: ASK.ResponseInterceptor = {
-    process(handlerInput, response) {
+export const Logger: ASK.ResponseInterceptor = {
+    async process(handlerInput, response) {
         if (DEBUG) {
             console.log('=== REQUEST ===\n', handlerInput.requestEnvelope)
             console.log('=== RESPONSE ===\n', response)

@@ -1,5 +1,5 @@
 import { DynamoDB } from 'aws-sdk'
-import { DDB_NEWS_KEY, DDB_TABLE_NAME } from './env'
+import { DDB_NEWS_KEY, DDB_TABLE_NAME, DEBUG } from './env'
 import { UnsetEnvironmentVariableError } from './errors'
 
 const DDBClient = new DynamoDB.DocumentClient({ apiVersion: '2012-08-10' })
@@ -9,6 +9,9 @@ async function getNewsItems(): Promise<INewsItemDDB[]> {
         if (!DDB_TABLE_NAME || !DDB_NEWS_KEY) {
             reject(new UnsetEnvironmentVariableError('DDB_TABLE_NAME/DDB_NEWS_KEY'))
             return
+        }
+        if (DEBUG) {
+            console.log('DDB_REQUEST:', 'getNewsItems')
         }
 
         const params: DynamoDB.DocumentClient.GetItemInput = {
@@ -44,6 +47,10 @@ async function getUserAttributes(id: string): Promise<IUserDDB | undefined> {
             return
         }
 
+        if (DEBUG) {
+            console.log('DDB_REQUEST:', 'getUserAttributes')
+        }
+
         const params: DynamoDB.DocumentClient.GetItemInput = {
             Key: { id },
             TableName: DDB_TABLE_NAME,
@@ -65,11 +72,15 @@ async function getUserAttributes(id: string): Promise<IUserDDB | undefined> {
     })
 }
 
-async function putUserAttributes(id: string, attributes: IUserDDB) {
-    return new Promise((resolve, reject) => {
+async function putUserAttributes(id: string, attributes: IUserDDB): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
         if (!DDB_TABLE_NAME) {
             reject(new UnsetEnvironmentVariableError('DDB_TABLE_NAME'))
             return
+        }
+
+        if (DEBUG) {
+            console.log('DDB_REQUEST:', 'putUserAttributes')
         }
 
         const params: DynamoDB.DocumentClient.PutItemInput = {
