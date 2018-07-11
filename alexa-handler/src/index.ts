@@ -5,6 +5,9 @@ import { HelpIntentHandler } from './handlers/Amazon/HelpIntent'
 import { PauseIntentHandler } from './handlers/Amazon/PauseIntent'
 import { ResumeIntentHandler } from './handlers/Amazon/ResumeIntent'
 import { StopIntentHandler } from './handlers/Amazon/StopIntent'
+import { PlaybackFinishedHandler } from './handlers/AudioPlayer/PlaybackFinished'
+import { PlaybackNearlyFinishedHandler } from './handlers/AudioPlayer/PlaybackNearlyFinished'
+import { PlaybackStartedHandler } from './handlers/AudioPlayer/PlaybackStarted'
 import { ErrorHandler } from './handlers/Error'
 import { LaunchRequestHandler } from './handlers/LaunchRequest'
 import { PlayNewsIntentHandler } from './handlers/PlayNewsIntent'
@@ -15,6 +18,9 @@ import { RequestAttributesInjector } from './interceptors/RequestAttributesInjec
 export const handler = ASK.SkillBuilders.standard()
     .addRequestHandlers(
         LaunchRequestHandler,
+        PlaybackStartedHandler,
+        PlaybackNearlyFinishedHandler,
+        PlaybackFinishedHandler,
         StopIntentHandler,
         PauseIntentHandler,
         ResumeIntentHandler,

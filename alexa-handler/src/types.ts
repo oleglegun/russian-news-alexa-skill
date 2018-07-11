@@ -17,10 +17,16 @@ interface IUserDDB {
 
 type IGetUserAttributes = (id: string) => Promise<IUserDDB | undefined>
 
+interface IRequestToken {
+    type: 'ITEM' | 'GREETING' | 'FAREWELL' | 'ETC'
+    id: string
+}
+
 interface IRequestAttributes {
+    createNewUser(): IUserDDB
+    extractToken(): IRequestToken
     getNews(): Promise<INewsItemDDB[]>
     getNextNewsItem(currentNewsId: string): Promise<INewsItemDDB | undefined>
     getUser(): Promise<IUserDDB | undefined>
     putUser(attributes: IUserDDB): Promise<void>
-    createNewUser(): IUserDDB
 }

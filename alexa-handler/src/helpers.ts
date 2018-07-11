@@ -42,4 +42,27 @@ function createNewUser(handerInput: ASK.HandlerInput): IUserDDB {
     }
 }
 
-export { createNewUser, getNextNewsItem }
+function extractToken(handlerInput: ASK.HandlerInput): IRequestToken {
+    const { token } = handlerInput.requestEnvelope.request as { token: string }
+
+    if (token === '') {
+        throw new Error('Empty token in request.')
+    }
+
+    const parts = token.split(':')
+
+    switch (parts[0]) {
+        case 'ITEM':
+            return {
+                type: 'ITEM',
+                id: parts[1],
+            }
+        default:
+            return {
+                type: 'ETC',
+                id: parts[1],
+            }
+    }
+}
+
+export { createNewUser, getNextNewsItem, extractToken }

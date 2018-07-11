@@ -1,6 +1,6 @@
 import * as ASK from 'ask-sdk'
 import { getNewsItems, getUserAttributes, putUserAttributes } from '../dynamo'
-import { createNewUser, getNextNewsItem } from '../helpers'
+import { createNewUser, extractToken, getNextNewsItem } from '../helpers'
 
 export const RequestAttributesInjector: ASK.RequestInterceptor = {
     async process(handlerInput) {
@@ -21,6 +21,7 @@ export const RequestAttributesInjector: ASK.RequestInterceptor = {
 
         handlerInput.attributesManager.setRequestAttributes({
             createNewUser: () => createNewUser(handlerInput),
+            extractToken: () => extractToken(handlerInput),
             getNews: getNewsItems,
             getNextNewsItem: async (currentNewsItemId: string) =>
                 getNextNewsItem(handlerInput, currentNewsItemId),
