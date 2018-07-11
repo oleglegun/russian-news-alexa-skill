@@ -9,7 +9,8 @@ import { ErrorHandler } from './handlers/Error'
 import { LaunchRequestHandler } from './handlers/LaunchRequest'
 import { PlayNewsIntentHandler } from './handlers/PlayNewsIntent'
 import { SessionEndedRequestHandler } from './handlers/SessionEndedRequest'
-import { LoggerInterceptor } from './interceptors/Logger'
+import { Logger } from './interceptors/Logger'
+import { RequestAttributesInjector } from './interceptors/RequestAttributesInjector'
 
 export const handler = ASK.SkillBuilders.standard()
     .addRequestHandlers(
@@ -24,5 +25,6 @@ export const handler = ASK.SkillBuilders.standard()
         SessionEndedRequestHandler
     )
     .addErrorHandlers(ErrorHandler)
-    .addResponseInterceptors(LoggerInterceptor)
+    .addRequestInterceptors(RequestAttributesInjector)
+    .addResponseInterceptors(Logger)
     .lambda()
