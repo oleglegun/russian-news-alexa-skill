@@ -41,9 +41,9 @@ function addSSML(news: INewsItemRSS[]): INewsItemRSSWithSSML[] {
         const ssml =
             '<speak>' +
             pollyRuSSML.ssml(item.title) +
-            '<break time="1s"/>' +
+            '<break time="0.5s"/>' +
             pollyRuSSML.ssml(item.text) +
-            '</speak>'
+            '<break time="0.8s"/></speak>'
 
         newsWithSSML.push(Object.assign({}, item, { ssml }))
     }
