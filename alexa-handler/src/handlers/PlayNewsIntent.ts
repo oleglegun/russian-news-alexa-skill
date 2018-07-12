@@ -8,14 +8,19 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
         )
     },
     async handle(handlerInput) {
-        const requestAttributes = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
+        const {
+            getUser,
+            getNextNewsItem,
+        } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
 
-        const user = await requestAttributes.getUser()
+        const user = await getUser()
         let item
+
+        const card = {}
 
         if (user && user.LastPlayedItem) {
             // recurring user
-            item = await requestAttributes.getNextNewsItem(user.LastPlayedItem)
+            item = await getNextNewsItem(user.LastPlayedItem)
 
             if (!item) {
                 return handlerInput.responseBuilder.speak('No fresh news.').getResponse()
@@ -23,11 +28,12 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
 
             return handlerInput.responseBuilder
                 .addAudioPlayerPlayDirective('REPLACE_ALL', item.AudioURL, `ITEM:${item.Id}`, 0)
+                .withStandardCard(item.Title, '', item.ImageURL, item.ImageURL)
                 .getResponse()
         }
 
         // new user
-        item = await requestAttributes.getNextNewsItem('')
+        item = await getNextNewsItem('')
 
         if (!item) {
             throw new Error('getNextNewsItem() returned "undefined" for the new user')
@@ -35,6 +41,7 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
 
         return handlerInput.responseBuilder
             .addAudioPlayerPlayDirective('REPLACE_ALL', item.AudioURL, `ITEM:${item.Id}`, 0)
+            .withStandardCard(item.Title, item.SourceURL, item.ImageURL, item.ImageURL)
             .getResponse()
     },
 }

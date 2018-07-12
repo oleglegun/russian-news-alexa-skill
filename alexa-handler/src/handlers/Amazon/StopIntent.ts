@@ -1,4 +1,5 @@
 import * as ASK from 'ask-sdk'
+import { PauseIntentHandler } from './PauseIntent'
 
 export const StopIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -8,11 +9,6 @@ export const StopIntentHandler: ASK.RequestHandler = {
         )
     },
     handle(handlerInput) {
-        const speechText = 'This is stop intent'
-
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .withSimpleCard('Stop Intent', speechText)
-            .getResponse()
+        return PauseIntentHandler.handle(handlerInput)
     },
 }

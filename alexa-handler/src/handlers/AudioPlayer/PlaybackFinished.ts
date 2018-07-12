@@ -15,20 +15,16 @@ export const PlaybackFinishedHandler: ASK.RequestHandler = {
 
         switch (type) {
             case 'ITEM':
-                // save progress
                 const user = await getUser()
 
                 if (!user) {
                     throw new Error('User not found.')
                 }
+                
+                user.LastPlayedItem = id
+                user.ItemsConsumed++
 
-                const updatedUser = {
-                    ItemsConsumed: user.ItemsConsumed + 1,
-                    LastAccess: new Date().toISOString(),
-                    LastPlayedItem: id,
-                } as IUserDDB
-
-                await putUser(Object.assign(user, updatedUser))
+                await putUser(user)
 
             default:
                 return handlerInput.responseBuilder.getResponse()

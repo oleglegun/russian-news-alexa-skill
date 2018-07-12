@@ -8,11 +8,11 @@ export const PauseIntentHandler: ASK.RequestHandler = {
         )
     },
     handle(handlerInput) {
-        const speechText = 'This is pause intent'
+        const context = handlerInput.requestEnvelope.context
+        if (context.AudioPlayer && context.AudioPlayer.playerActivity === 'PLAYING') {
+            return handlerInput.responseBuilder.addAudioPlayerStopDirective().getResponse()
+        }
 
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .withSimpleCard('Pause intent', speechText)
-            .getResponse()
+        return handlerInput.responseBuilder.getResponse()
     },
 }

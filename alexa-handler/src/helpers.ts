@@ -35,10 +35,19 @@ async function getNextNewsItem(
 function createNewUser(handerInput: ASK.HandlerInput): IUserDDB {
     return {
         DaysActive: 1,
+        Invocations: 1,
         FirstAccess: new Date().toISOString(),
         LastAccess: new Date().toISOString(),
-        Devices: [handerInput.requestEnvelope.context.System.device.deviceId],
+        Devices: {
+            [handerInput.requestEnvelope.context.System.device.deviceId]: {
+                ItemsConsumed: 0,
+                SupportedInterfaces: Object.keys(
+                    handerInput.requestEnvelope.context.System.device.supportedInterfaces
+                ),
+            },
+        },
         ItemsConsumed: 0,
+        Role: 'USER',
     }
 }
 
@@ -65,4 +74,15 @@ function extractToken(handlerInput: ASK.HandlerInput): IRequestToken {
     }
 }
 
-export { createNewUser, getNextNewsItem, extractToken }
+function isAccessedToday(user: IUserDDB): boolean {
+    const today = new Date()
+    const userDate = new Date(user.LastAccess)
+
+    return (
+        userDate.getDate() === today.getDate() &&
+        userDate.getMonth() === today.getMonth() &&
+        userDate.getFullYear() === today.getFullYear()
+    )
+}
+
+export { createNewUser, getNextNewsItem, extractToken, isAccessedToday }

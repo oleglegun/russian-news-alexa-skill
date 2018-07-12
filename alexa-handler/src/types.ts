@@ -8,11 +8,19 @@ interface INewsItemDDB {
 
 interface IUserDDB {
     FirstAccess: string
+    Invocations: number
     LastAccess: string
-    LastPlayedItem?: string
     DaysActive: number
     ItemsConsumed: number
-    Devices: string[]
+    Devices: {
+        [key: string]: {
+            ItemsConsumed: number
+            SupportedInterfaces: string[]
+        }
+    }
+    LastPlayedItem?: string
+    Role: 'USER' | 'TESTER' | 'ADMIN'
+    Notes?: string
 }
 
 type IGetUserAttributes = (id: string) => Promise<IUserDDB | undefined>
@@ -29,4 +37,5 @@ interface IRequestAttributes {
     getNextNewsItem(currentNewsId: string): Promise<INewsItemDDB | undefined>
     getUser(): Promise<IUserDDB | undefined>
     putUser(attributes: IUserDDB): Promise<void>
+    supportsDisplay(): boolean
 }

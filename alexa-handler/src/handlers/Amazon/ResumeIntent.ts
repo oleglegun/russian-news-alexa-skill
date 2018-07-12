@@ -1,4 +1,5 @@
 import * as ASK from 'ask-sdk'
+import { PlayNewsIntentHandler } from '../PlayNewsIntent'
 
 export const ResumeIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -8,11 +9,6 @@ export const ResumeIntentHandler: ASK.RequestHandler = {
         )
     },
     handle(handlerInput) {
-        const speechText = 'This is resume intent'
-
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .withSimpleCard('Resume intent', speechText)
-            .getResponse()
+        return PlayNewsIntentHandler.handle(handlerInput)
     },
 }
