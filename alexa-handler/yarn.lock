@@ -10,37 +10,9 @@ ask-sdk-core@^2.0.7:
   version "2.0.7"
   resolved "https://registry.yarnpkg.com/ask-sdk-core/-/ask-sdk-core-2.0.7.tgz#0f2300aa99a5bd92c0bd700d1ed92ff8da1f83b9"
 
-ask-sdk-dynamodb-persistence-adapter@^2.0.7:
-  version "2.0.7"
-  resolved "https://registry.yarnpkg.com/ask-sdk-dynamodb-persistence-adapter/-/ask-sdk-dynamodb-persistence-adapter-2.0.7.tgz#c00c88579cd32cf91b1b3d843615ff29cadc5234"
-  dependencies:
-    aws-sdk "^2.163.0"
-
-ask-sdk-model@^1.0.0:
+ask-sdk-model@^1.3.1:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/ask-sdk-model/-/ask-sdk-model-1.3.1.tgz#a583809e4e9d3fb5308306249907808fab37fd4f"
-
-ask-sdk@^2.0.7:
-  version "2.0.7"
-  resolved "https://registry.yarnpkg.com/ask-sdk/-/ask-sdk-2.0.7.tgz#1157fb90399b50bb1deab55a866255fba4317d72"
-  dependencies:
-    ask-sdk-core "^2.0.7"
-    ask-sdk-dynamodb-persistence-adapter "^2.0.7"
-    ask-sdk-model "^1.0.0"
-
-aws-sdk@^2.163.0:
-  version "2.269.1"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.269.1.tgz#c1a6d1cc6994db2e72d0e73cec9a27470ba53fe0"
-  dependencies:
-    buffer "4.9.1"
-    events "1.1.1"
-    ieee754 "1.1.8"
-    jmespath "0.15.0"
-    querystring "0.2.0"
-    sax "1.2.1"
-    url "0.10.3"
-    uuid "3.1.0"
-    xml2js "0.4.17"
 
 aws-sdk@^2.270.1:
   version "2.270.1"

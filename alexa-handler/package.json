@@ -10,7 +10,8 @@
         "deploy": "bash ./deploy.sh"
     },
     "dependencies": {
-        "ask-sdk": "^2.0.7",
+        "ask-sdk-core": "^2.0.7",
+        "ask-sdk-model": "^1.3.1",
         "aws-sdk": "^2.270.1"
     },
     "devDependencies": {
