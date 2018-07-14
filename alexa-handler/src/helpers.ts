@@ -1,4 +1,5 @@
-import * as ASK from 'ask-sdk'
+import * as ASK from 'ask-sdk-core'
+import { interfaces } from 'ask-sdk-model'
 
 async function getNextNewsItem(
     handlerInput: ASK.HandlerInput,
@@ -8,6 +9,11 @@ async function getNextNewsItem(
 
     const news = await getNews()
     const len = news.length
+
+    if (currentItemId === '' && len) {
+        // new user
+        return news[0]
+    }
 
     let currentIdx = -1
 
@@ -38,6 +44,7 @@ function createNewUser(handerInput: ASK.HandlerInput): IUserDDB {
         Invocations: 1,
         FirstAccess: new Date().toISOString(),
         LastAccess: new Date().toISOString(),
+        LastPlayedItem: 'ITEM:',
         Devices: {
             [handerInput.requestEnvelope.context.System.device.deviceId]: {
                 ItemsConsumed: 0,
@@ -54,11 +61,15 @@ function createNewUser(handerInput: ASK.HandlerInput): IUserDDB {
 function extractToken(handlerInput: ASK.HandlerInput): IRequestToken {
     const { token } = handlerInput.requestEnvelope.request as { token: string }
 
-    if (token === '') {
-        throw new Error('Empty token in request.')
+    if (!token) {
+        throw new Error('extractToken(): no token found.')
     }
 
     const parts = token.split(':')
+
+    if (parts.length !== 2) {
+        throw new Error(`Invalid token "${token}".`)
+    }
 
     switch (parts[0]) {
         case 'ITEM':
@@ -85,4 +96,19 @@ function isAccessedToday(user: IUserDDB): boolean {
     )
 }
 
-export { createNewUser, getNextNewsItem, extractToken, isAccessedToday }
+function generateAudioMetadata(newsItem: INewsItemDDB): interfaces.audioplayer.AudioItemMetadata {
+    return {
+        title: newsItem.Title,
+        subtitle: 'Russian News Skill',
+        art: {
+            contentDescription: 'News',
+            sources: [
+                {
+                    url: newsItem.ImageURL,
+                },
+            ],
+        },
+    }
+}
+
+export { createNewUser, getNextNewsItem, generateAudioMetadata, extractToken, isAccessedToday }

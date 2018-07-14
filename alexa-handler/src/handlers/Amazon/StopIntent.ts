@@ -1,4 +1,4 @@
-import * as ASK from 'ask-sdk'
+import * as ASK from 'ask-sdk-core'
 import { PauseIntentHandler } from './PauseIntent'
 
 export const StopIntentHandler: ASK.RequestHandler = {

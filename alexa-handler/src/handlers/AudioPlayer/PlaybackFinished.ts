@@ -1,4 +1,4 @@
-import * as ASK from 'ask-sdk'
+import * as ASK from 'ask-sdk-core'
 
 export const PlaybackFinishedHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -20,7 +20,7 @@ export const PlaybackFinishedHandler: ASK.RequestHandler = {
                 if (!user) {
                     throw new Error('User not found.')
                 }
-                
+
                 user.LastPlayedItem = id
                 user.ItemsConsumed++
 

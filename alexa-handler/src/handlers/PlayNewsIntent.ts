@@ -1,4 +1,4 @@
-import * as ASK from 'ask-sdk'
+import * as ASK from 'ask-sdk-core'
 
 export const PlayNewsIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -9,16 +9,15 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
     },
     async handle(handlerInput) {
         const {
-            getUser,
+            generateAudioMetadata,
             getNextNewsItem,
+            getUser,
         } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
 
         const user = await getUser()
         let item
 
-        const card = {}
-
-        if (user && user.LastPlayedItem) {
+        if (user) {
             // recurring user
             item = await getNextNewsItem(user.LastPlayedItem)
 
@@ -27,8 +26,15 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
             }
 
             return handlerInput.responseBuilder
-                .addAudioPlayerPlayDirective('REPLACE_ALL', item.AudioURL, `ITEM:${item.Id}`, 0)
-                .withStandardCard(item.Title, '', item.ImageURL, item.ImageURL)
+                .addAudioPlayerPlayDirective(
+                    'REPLACE_ALL',
+                    item.AudioURL,
+                    `ITEM:${item.Id}`,
+                    0,
+                    undefined,
+                    generateAudioMetadata(item)
+                )
+                .withStandardCard(item.Title, '', item.ImageURL)
                 .getResponse()
         }
 
@@ -41,7 +47,7 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
 
         return handlerInput.responseBuilder
             .addAudioPlayerPlayDirective('REPLACE_ALL', item.AudioURL, `ITEM:${item.Id}`, 0)
-            .withStandardCard(item.Title, item.SourceURL, item.ImageURL, item.ImageURL)
+            .withStandardCard(item.Title, '', item.ImageURL)
             .getResponse()
     },
 }

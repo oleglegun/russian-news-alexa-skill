@@ -1,4 +1,4 @@
-import * as ASK from 'ask-sdk'
+import * as ASK from 'ask-sdk-core'
 import { PlayNewsIntentHandler } from '../PlayNewsIntent'
 
 export const ResumeIntentHandler: ASK.RequestHandler = {

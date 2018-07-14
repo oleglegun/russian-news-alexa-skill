@@ -1,4 +1,4 @@
-import * as ASK from 'ask-sdk'
+import * as ASK from 'ask-sdk-core'
 import { DEBUG } from '../env'
 
 export const Logger: ASK.ResponseInterceptor = {

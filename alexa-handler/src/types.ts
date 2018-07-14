@@ -18,12 +18,10 @@ interface IUserDDB {
             SupportedInterfaces: string[]
         }
     }
-    LastPlayedItem?: string
+    LastPlayedItem: string
     Role: 'USER' | 'TESTER' | 'ADMIN'
     Notes?: string
 }
-
-type IGetUserAttributes = (id: string) => Promise<IUserDDB | undefined>
 
 interface IRequestToken {
     type: 'ITEM' | 'GREETING' | 'FAREWELL' | 'ETC'
@@ -33,6 +31,7 @@ interface IRequestToken {
 interface IRequestAttributes {
     createNewUser(): IUserDDB
     extractToken(): IRequestToken
+    generateAudioMetadata(newsItem: INewsItemDDB): any
     getNews(): Promise<INewsItemDDB[]>
     getNextNewsItem(currentNewsId: string): Promise<INewsItemDDB | undefined>
     getUser(): Promise<IUserDDB | undefined>

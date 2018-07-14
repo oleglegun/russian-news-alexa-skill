@@ -1,4 +1,4 @@
-import * as ASK from 'ask-sdk'
+import * as ASK from 'ask-sdk-core'
 
 export const CancelIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {

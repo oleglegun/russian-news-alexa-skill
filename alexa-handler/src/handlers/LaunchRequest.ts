@@ -1,6 +1,6 @@
-import * as ASK from 'ask-sdk'
-import speech from '../speech'
+import * as ASK from 'ask-sdk-core'
 import { isAccessedToday } from '../helpers'
+import speech from '../speech'
 import { PlayNewsIntentHandler } from './PlayNewsIntent'
 
 export const LaunchRequestHandler: ASK.RequestHandler = {
@@ -27,6 +27,7 @@ export const LaunchRequestHandler: ASK.RequestHandler = {
                 .getResponse()
         }
 
+        // Recurring user
         if (!isAccessedToday(user)) {
             user.DaysActive++
         }
