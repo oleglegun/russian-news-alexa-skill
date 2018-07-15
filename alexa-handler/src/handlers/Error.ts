@@ -1,4 +1,5 @@
 import * as ASK from 'ask-sdk-core'
+import speech from '../speech'
 
 export const ErrorHandler: ASK.ErrorHandler = {
     canHandle() {
@@ -6,10 +7,11 @@ export const ErrorHandler: ASK.ErrorHandler = {
     },
     handle(handlerInput, error) {
         console.log(`Error handled: ${error.message}`)
+        console.log('Error:', error)
 
         return handlerInput.responseBuilder
-            .speak(`Sorry, I can't understand the command. Please say again.`)
-            .reprompt(`Sorry, I can't understand the command. Please say again.`)
+            .speak(speech.error)
+            .reprompt(speech.error)
             .getResponse()
     },
 }

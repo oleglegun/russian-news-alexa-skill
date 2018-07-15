@@ -1,4 +1,5 @@
 import * as ASK from 'ask-sdk-core'
+import speech from '../../speech'
 
 export const FallbackIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -8,11 +9,9 @@ export const FallbackIntentHandler: ASK.RequestHandler = {
         )
     },
     handle(handlerInput) {
-        const speechText = 'This is fallback intent'
-
         return handlerInput.responseBuilder
-            .speak(speechText)
-            .withSimpleCard('Fallback intent', speechText)
+            .speak(speech.error)
+            .reprompt(speech.error)
             .getResponse()
     },
 }

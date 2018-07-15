@@ -33,7 +33,9 @@ interface IRequestAttributes {
     extractToken(): IRequestToken
     generateAudioMetadata(newsItem: INewsItemDDB): any
     getNews(): Promise<INewsItemDDB[]>
+    getNewsItemById(newsItemId: string): Promise<INewsItemDDB | undefined>
     getNextNewsItem(currentNewsId: string): Promise<INewsItemDDB | undefined>
+    getPreviousNewsItem(currentNewsId: string): Promise<INewsItemDDB | undefined>
     getUser(): Promise<IUserDDB | undefined>
     putUser(attributes: IUserDDB): Promise<void>
     supportsDisplay(): boolean

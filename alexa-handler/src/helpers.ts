@@ -11,7 +11,7 @@ async function getNextNewsItem(
     const len = news.length
 
     if (currentItemId === '' && len) {
-        // new user
+        // new user in PlayNewsIntent
         return news[0]
     }
 
@@ -38,13 +38,56 @@ async function getNextNewsItem(
     return news[currentIdx + 1]
 }
 
+async function getNewsItemById(
+    handlerInput: ASK.HandlerInput,
+    newsItemId: string
+): Promise<INewsItemDDB | undefined> {
+    const { getNews } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
+
+    const news = await getNews()
+
+    for (const item of news) {
+        if (item.Id === newsItemId) {
+            return item
+        }
+    }
+
+    return undefined
+}
+
+async function getPreviousNewsItem(
+    handerInput: ASK.HandlerInput,
+    currentItemId: string
+): Promise<INewsItemDDB | undefined> {
+    const { getNews } = handerInput.attributesManager.getRequestAttributes() as IRequestAttributes
+
+    const news = await getNews()
+
+    const len = news.length
+
+    let currentIdx = -1
+
+    for (let i = 0; i < len; i++) {
+        if (news[i].Id === currentItemId) {
+            currentIdx = i
+            break
+        }
+    }
+
+    if (currentIdx < 1) {
+        return undefined
+    }
+
+    return news[currentIdx - 1]
+}
+
 function createNewUser(handerInput: ASK.HandlerInput): IUserDDB {
     return {
         DaysActive: 1,
         Invocations: 1,
         FirstAccess: new Date().toISOString(),
         LastAccess: new Date().toISOString(),
-        LastPlayedItem: 'ITEM:',
+        LastPlayedItem: 'new-user',
         Devices: {
             [handerInput.requestEnvelope.context.System.device.deviceId]: {
                 ItemsConsumed: 0,
@@ -111,4 +154,12 @@ function generateAudioMetadata(newsItem: INewsItemDDB): interfaces.audioplayer.A
     }
 }
 
-export { createNewUser, getNextNewsItem, generateAudioMetadata, extractToken, isAccessedToday }
+export {
+    createNewUser,
+    getNextNewsItem,
+    getNewsItemById,
+    getPreviousNewsItem,
+    generateAudioMetadata,
+    extractToken,
+    isAccessedToday,
+}

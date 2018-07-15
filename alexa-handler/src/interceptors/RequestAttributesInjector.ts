@@ -1,6 +1,13 @@
 import * as ASK from 'ask-sdk-core'
 import { getNewsItems, getUserAttributes, putUserAttributes } from '../dynamo'
-import { createNewUser, extractToken, generateAudioMetadata, getNextNewsItem } from '../helpers'
+import {
+    createNewUser,
+    extractToken,
+    generateAudioMetadata,
+    getNewsItemById,
+    getNextNewsItem,
+    getPreviousNewsItem,
+} from '../helpers'
 
 export const RequestAttributesInjector: ASK.RequestInterceptor = {
     async process(handlerInput) {
@@ -36,8 +43,12 @@ export const RequestAttributesInjector: ASK.RequestInterceptor = {
             extractToken: () => extractToken(handlerInput),
             generateAudioMetadata,
             getNews: getNewsItemsMemoized,
+            getNewsItemById: async (newsItemId: string) =>
+                getNewsItemById(handlerInput, newsItemId),
             getNextNewsItem: async (currentNewsItemId: string) =>
                 getNextNewsItem(handlerInput, currentNewsItemId),
+            getPreviousNewsItem: async (currentNewsItemId: string) =>
+                getPreviousNewsItem(handlerInput, currentNewsItemId),
             getUser: async () => getUserAttributesMemoized(userId),
             putUser: async (attributes: IUserDDB) => putUserAttributes(userId, attributes),
         } as IRequestAttributes)

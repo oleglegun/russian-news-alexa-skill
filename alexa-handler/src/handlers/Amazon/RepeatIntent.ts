@@ -1,4 +1,5 @@
 import * as ASK from 'ask-sdk-core'
+import { PlayNewsIntentHandler } from '../PlayNewsIntent'
 
 export const RepeatIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -8,6 +9,6 @@ export const RepeatIntentHandler: ASK.RequestHandler = {
         )
     },
     handle(handlerInput) {
-        return handlerInput.responseBuilder.getResponse()
+        return PlayNewsIntentHandler.handle(handlerInput)
     },
 }

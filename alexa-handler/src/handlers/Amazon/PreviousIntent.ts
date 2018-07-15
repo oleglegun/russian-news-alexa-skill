@@ -1,4 +1,5 @@
 import * as ASK from 'ask-sdk-core'
+import speech from '../../speech'
 
 export const PreviousIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -7,7 +8,54 @@ export const PreviousIntentHandler: ASK.RequestHandler = {
             handlerInput.requestEnvelope.request.intent.name === 'AMAZON.PreviousIntent'
         )
     },
-    handle(handlerInput) {
-        return handlerInput.responseBuilder.getResponse()
+    async handle(handlerInput) {
+        const {
+            getPreviousNewsItem,
+            getUser,
+            putUser,
+            getNewsItemById,
+            generateAudioMetadata,
+        } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
+
+        const user = await getUser()
+
+        if (!user) {
+            throw new Error('PreviousIntentHandler: user is undefined.')
+        }
+
+        const id = user.LastPlayedItem
+
+        const lastPlayedItem = await getNewsItemById(id)
+
+        const beforeLastPlayedItem = await getPreviousNewsItem(id)
+
+        if (!lastPlayedItem) {
+            return handlerInput.responseBuilder.speak(speech.isOldestNewsItem).getResponse()
+        }
+
+        if (beforeLastPlayedItem) {
+            user.LastPlayedItem = beforeLastPlayedItem.Id
+        } else {
+            // is the oldest news item => no before previous id
+            user.LastPlayedItem = 'no-item'
+        }
+
+        user.LastAccess = new Date().toISOString()
+
+        await putUser(user)
+
+        return handlerInput.responseBuilder
+            .addAudioPlayerPlayDirective(
+                'REPLACE_ALL',
+                lastPlayedItem.AudioURL,
+                `ITEM:${lastPlayedItem.Id}`,
+                0,
+                undefined,
+                generateAudioMetadata(lastPlayedItem)
+            )
+            .withStandardCard(lastPlayedItem.Title, '', lastPlayedItem.ImageURL)
+            .getResponse()
+
+        return handlerInput.responseBuilder.speak('Previous').getResponse()
     },
 }

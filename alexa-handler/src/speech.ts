@@ -7,6 +7,10 @@ Thank you for understanding.
 So, without further ado, say "Start" to begin.`,
 
     noNews: `No fresh news.`,
+
+    isOldestNewsItem: `Sorry, this is the oldest news.`,
+
+    error: `Sorry, I can't understand the command. Please say again.`,
 }
 
 export default speech

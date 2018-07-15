@@ -1,4 +1,5 @@
 import * as ASK from 'ask-sdk-core'
+import speech from '../speech'
 
 export const PlayNewsIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -15,39 +16,39 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
         } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
 
         const user = await getUser()
-        let item
+        let newsItem
 
         if (user) {
             // recurring user
-            item = await getNextNewsItem(user.LastPlayedItem)
+            newsItem = await getNextNewsItem(user.LastPlayedItem)
 
-            if (!item) {
-                return handlerInput.responseBuilder.speak('No fresh news.').getResponse()
+            if (!newsItem) {
+                return handlerInput.responseBuilder.speak(speech.noNews).getResponse()
             }
 
             return handlerInput.responseBuilder
                 .addAudioPlayerPlayDirective(
                     'REPLACE_ALL',
-                    item.AudioURL,
-                    `ITEM:${item.Id}`,
+                    newsItem.AudioURL,
+                    `ITEM:${newsItem.Id}`,
                     0,
                     undefined,
-                    generateAudioMetadata(item)
+                    generateAudioMetadata(newsItem)
                 )
-                .withStandardCard(item.Title, '', item.ImageURL)
+                .withStandardCard(newsItem.Title, '', newsItem.ImageURL)
                 .getResponse()
         }
 
         // new user
-        item = await getNextNewsItem('')
+        newsItem = await getNextNewsItem('')
 
-        if (!item) {
+        if (!newsItem) {
             throw new Error('getNextNewsItem() returned "undefined" for the new user')
         }
 
         return handlerInput.responseBuilder
-            .addAudioPlayerPlayDirective('REPLACE_ALL', item.AudioURL, `ITEM:${item.Id}`, 0)
-            .withStandardCard(item.Title, '', item.ImageURL)
+            .addAudioPlayerPlayDirective('REPLACE_ALL', newsItem.AudioURL, `ITEM:${newsItem.Id}`, 0)
+            .withStandardCard(newsItem.Title, '', newsItem.ImageURL)
             .getResponse()
     },
 }
