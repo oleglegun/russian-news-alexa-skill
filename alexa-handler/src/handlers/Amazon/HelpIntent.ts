@@ -1,4 +1,6 @@
 import * as ASK from 'ask-sdk-core'
+import speech from '../../speech'
+import log from '../../log'
 
 export const HelpIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -8,12 +10,12 @@ export const HelpIntentHandler: ASK.RequestHandler = {
         )
     },
     handle(handlerInput) {
-        const speechText = 'This is help intent'
+        log('---', 'HelpIntent')
 
         return handlerInput.responseBuilder
-            .speak(speechText)
-            .reprompt(speechText)
-            .withSimpleCard('Help intent', speechText)
+            .speak(speech.help)
+            .reprompt(speech.help)
+            .withSimpleCard('Help', speech.help)
             .getResponse()
     },
 }

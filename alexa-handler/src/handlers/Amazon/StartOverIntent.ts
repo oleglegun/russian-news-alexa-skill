@@ -1,4 +1,5 @@
 import * as ASK from 'ask-sdk-core'
+import log from '../../log'
 
 export const StartOverIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -8,6 +9,8 @@ export const StartOverIntentHandler: ASK.RequestHandler = {
         )
     },
     async handle(handlerInput) {
+        log('---', 'StartOverIntent')
+
         const {
             getNews,
             getUser,

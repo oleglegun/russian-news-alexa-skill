@@ -1,4 +1,5 @@
 import * as ASK from 'ask-sdk-core'
+import log from '../../log'
 
 export const CancelIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -8,11 +9,8 @@ export const CancelIntentHandler: ASK.RequestHandler = {
         )
     },
     handle(handlerInput) {
-        const speechText = 'This is cancel intent'
+        log('---', 'CancelIntent')
 
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .withSimpleCard('Cancel Intent', speechText)
-            .getResponse()
+        return handlerInput.responseBuilder.getResponse()
     },
 }

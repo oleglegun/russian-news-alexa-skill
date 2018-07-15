@@ -1,4 +1,5 @@
 import * as ASK from 'ask-sdk-core'
+import log from '../../log'
 
 export const DisplayIntentsHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -21,6 +22,8 @@ export const DisplayIntentsHandler: ASK.RequestHandler = {
         )
     },
     async handle(handlerInput) {
+        log('---', 'DisplayIntent')
+
         return handlerInput.responseBuilder.getResponse()
     },
 }

@@ -2,12 +2,15 @@ import * as ASK from 'ask-sdk-core'
 import { isAccessedToday } from '../helpers'
 import speech from '../speech'
 import { PlayNewsIntentHandler } from './PlayNewsIntent'
+import log from '../log'
 
 export const LaunchRequestHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'LaunchRequest'
     },
     async handle(handlerInput) {
+        log('---', 'LaunchRequest')
+
         const {
             getUser,
             createNewUser,

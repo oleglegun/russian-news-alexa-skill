@@ -1,10 +1,13 @@
 import * as ASK from 'ask-sdk-core'
+import log from '../../log'
 
 export const PlaybackNearlyFinishedHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'AudioPlayer.PlaybackNearlyFinished'
     },
     async handle(handlerInput) {
+        log('---', 'PlaybackNearlyFinished')
+
         const {
             getNextNewsItem,
             extractToken,

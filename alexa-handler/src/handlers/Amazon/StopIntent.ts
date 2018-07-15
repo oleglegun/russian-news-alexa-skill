@@ -1,5 +1,6 @@
 import * as ASK from 'ask-sdk-core'
 import { PauseIntentHandler } from './PauseIntent'
+import log from '../../log'
 
 export const StopIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -9,6 +10,8 @@ export const StopIntentHandler: ASK.RequestHandler = {
         )
     },
     handle(handlerInput) {
+        log('---', 'StopIntent')
+
         return PauseIntentHandler.handle(handlerInput)
     },
 }

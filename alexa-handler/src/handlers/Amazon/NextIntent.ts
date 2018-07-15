@@ -1,5 +1,6 @@
 import * as ASK from 'ask-sdk-core'
 import speech from '../../speech'
+import log from '../../log'
 
 export const NextIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -9,7 +10,7 @@ export const NextIntentHandler: ASK.RequestHandler = {
         )
     },
     async handle(handlerInput) {
-        console.log('---', 'NextIntent')
+        log('---', 'NextIntent')
 
         const {
             getUser,

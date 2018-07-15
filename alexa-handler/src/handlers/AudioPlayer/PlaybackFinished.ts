@@ -1,10 +1,13 @@
 import * as ASK from 'ask-sdk-core'
+import log from '../../log'
 
 export const PlaybackFinishedHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'AudioPlayer.PlaybackFinished'
     },
     async handle(handlerInput) {
+        log('---', 'PlaybackFinished')
+
         const {
             extractToken,
             getUser,

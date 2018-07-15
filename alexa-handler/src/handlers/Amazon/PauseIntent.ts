@@ -1,4 +1,5 @@
 import * as ASK from 'ask-sdk-core'
+import log from '../../log'
 
 export const PauseIntentHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
@@ -8,7 +9,7 @@ export const PauseIntentHandler: ASK.RequestHandler = {
         )
     },
     handle(handlerInput) {
-        const context = handlerInput.requestEnvelope.context
+        log('---', 'PauseIntent')
 
         return handlerInput.responseBuilder.addAudioPlayerStopDirective().getResponse()
     },

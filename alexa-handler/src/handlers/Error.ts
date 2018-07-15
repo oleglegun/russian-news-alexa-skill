@@ -6,7 +6,6 @@ export const ErrorHandler: ASK.ErrorHandler = {
         return true
     },
     handle(handlerInput, error) {
-        console.log(`Error handled: ${error.message}`)
         console.log('Error:', error)
 
         return handlerInput.responseBuilder

@@ -11,6 +11,7 @@ So, without further ado, say "Start" to begin.`,
     isOldestNewsItem: `Sorry, this is the oldest news.`,
 
     error: `Sorry, I can't understand the command. Please say again.`,
+    help: `This is help intent.`,
 }
 
 export default speech
