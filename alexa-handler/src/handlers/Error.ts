@@ -5,12 +5,32 @@ export const ErrorHandler: ASK.ErrorHandler = {
     canHandle() {
         return true
     },
-    handle(handlerInput, error) {
+    async handle(handlerInput, error) {
         console.log('Error:', error)
 
-        return handlerInput.responseBuilder
-            .speak(speech.error)
-            .reprompt(speech.error)
-            .getResponse()
+        const {
+            getUser,
+        } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
+
+        const user = await getUser()
+
+        if (!user) {
+            throw new Error('ErrorHandler: user is undefined')
+        }
+
+        switch (user.Role) {
+            case 'ADMIN':
+            case 'TESTER':
+                return handlerInput.responseBuilder
+                    .speak(speech.errorTester)
+                    .withSimpleCard('Russian News Error', error.stack ? error.stack : error.message)
+                    .getResponse()
+
+            default:
+                return handlerInput.responseBuilder
+                    .speak(speech.error)
+                    .reprompt(speech.error)
+                    .getResponse()
+        }
     },
 }
