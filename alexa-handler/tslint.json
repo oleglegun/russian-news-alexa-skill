@@ -12,7 +12,8 @@
         "trailing-comma": false,
         "object-literal-sort-keys": false,
         "no-unused-variable": true,
-        "ordered-imports": false
+        "ordered-imports": false,
+        "max-line-length": false
     },
     "rulesDirectory": []
 }

@@ -14,6 +14,7 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
 
         const {
             generateAudioMetadata,
+            generateCardBodyWithFreshNews,
             getNextNewsItem,
             getUser,
         } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
@@ -38,7 +39,11 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
                     undefined,
                     generateAudioMetadata(newsItem)
                 )
-                .withStandardCard(newsItem.Title, '', newsItem.ImageURL)
+                .withStandardCard(
+                    'Свежие новости',
+                    await generateCardBodyWithFreshNews(),
+                    newsItem.ImageURL
+                )
                 .getResponse()
         }
 
@@ -50,8 +55,19 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
         }
 
         return handlerInput.responseBuilder
-            .addAudioPlayerPlayDirective('REPLACE_ALL', newsItem.AudioURL, `ITEM:${newsItem.Id}`, 0)
-            .withStandardCard(newsItem.Title, '', newsItem.ImageURL)
+            .addAudioPlayerPlayDirective(
+                'REPLACE_ALL',
+                newsItem.AudioURL,
+                `ITEM:${newsItem.Id}`,
+                0,
+                undefined,
+                generateAudioMetadata(newsItem)
+            )
+            .withStandardCard(
+                'Свежие новости',
+                await generateCardBodyWithFreshNews(),
+                newsItem.ImageURL
+            )
             .getResponse()
     },
 }

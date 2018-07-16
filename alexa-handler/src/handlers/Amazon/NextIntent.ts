@@ -16,6 +16,7 @@ export const NextIntentHandler: ASK.RequestHandler = {
             getUser,
             putUser,
             getNextNewsItem,
+            generateAudioMetadata,
         } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
 
         const user = await getUser()
@@ -49,9 +50,10 @@ export const NextIntentHandler: ASK.RequestHandler = {
                 'REPLACE_ALL',
                 nextNewsItem.AudioURL,
                 `ITEM:${nextNewsItem.Id}`,
-                0
+                0,
+                undefined,
+                generateAudioMetadata(nextNewsItem)
             )
-            .withStandardCard(nextNewsItem.Title, '', nextNewsItem.ImageURL)
             .getResponse()
     },
 }

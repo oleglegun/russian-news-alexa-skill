@@ -42,7 +42,6 @@ export const StartOverIntentHandler: ASK.RequestHandler = {
                 undefined,
                 generateAudioMetadata(newsItem)
             )
-            .withStandardCard(newsItem.Title, '', newsItem.ImageURL)
             .getResponse()
     },
 }

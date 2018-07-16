@@ -24,6 +24,8 @@ export const PlaybackFinishedHandler: ASK.RequestHandler = {
                     throw new Error('User not found.')
                 }
 
+                const deviceId = handlerInput.requestEnvelope.context.System.device.deviceId
+                user.Devices[deviceId].ItemsConsumed++
                 user.LastPlayedItem = id
                 user.ItemsConsumed++
 

@@ -11,6 +11,7 @@ export const PlaybackNearlyFinishedHandler: ASK.RequestHandler = {
         const {
             getNextNewsItem,
             extractToken,
+            generateAudioMetadata,
         } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
 
         const { type, id } = extractToken()
@@ -23,7 +24,27 @@ export const PlaybackNearlyFinishedHandler: ASK.RequestHandler = {
 
                 if (!nextNewsItem) {
                     // send audio "Farewell"
-                    return handlerInput.responseBuilder.getResponse()
+
+                    return handlerInput.responseBuilder
+                        .addAudioPlayerPlayDirective(
+                            'ENQUEUE',
+                            'https://russian-news.s3.amazonaws.com/effects/end-sound.mp3',
+                            `FAREWELL:`,
+                            0,
+                            `${type}:${id}`,
+                            {
+                                title: 'Новостей больше нет',
+                                art: {
+                                    sources: [
+                                        {
+                                            url:
+                                                'https://russian-news.s3.amazonaws.com/russian-news-logo-big.png',
+                                        },
+                                    ],
+                                },
+                            }
+                        )
+                        .getResponse()
                 }
 
                 return handlerInput.responseBuilder
@@ -32,7 +53,8 @@ export const PlaybackNearlyFinishedHandler: ASK.RequestHandler = {
                         nextNewsItem.AudioURL,
                         `${type}:${nextNewsItem.Id}`,
                         0,
-                        `${type}:${id}`
+                        `${type}:${id}`,
+                        generateAudioMetadata(nextNewsItem)
                     )
                     .getResponse()
 

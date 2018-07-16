@@ -4,6 +4,7 @@ import {
     createNewUser,
     extractToken,
     generateAudioMetadata,
+    generateCardBodyWithFreshNews,
     getNewsItemById,
     getNextNewsItem,
     getPreviousNewsItem,
@@ -42,6 +43,7 @@ export const RequestAttributesInjector: ASK.RequestInterceptor = {
             createNewUser: () => createNewUser(handlerInput),
             extractToken: () => extractToken(handlerInput),
             generateAudioMetadata,
+            generateCardBodyWithFreshNews: async () => generateCardBodyWithFreshNews(handlerInput),
             getNews: getNewsItemsMemoized,
             getNewsItemById: async (newsItemId: string) =>
                 getNewsItemById(handlerInput, newsItemId),

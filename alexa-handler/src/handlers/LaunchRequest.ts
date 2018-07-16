@@ -19,6 +19,7 @@ export const LaunchRequestHandler: ASK.RequestHandler = {
 
         const user = await getUser()
 
+        // New user
         if (!user) {
             // Create new user
             const newUser = createNewUser()
@@ -44,7 +45,7 @@ export const LaunchRequestHandler: ASK.RequestHandler = {
         } else {
             // Add new device
             user.Devices[deviceId] = {
-                ItemsConsumed: 1,
+                ItemsConsumed: 0,
                 SupportedInterfaces: Object.keys(
                     handlerInput.requestEnvelope.context.System.device.supportedInterfaces
                 ),
@@ -55,6 +56,11 @@ export const LaunchRequestHandler: ASK.RequestHandler = {
         user.LastAccess = new Date().toISOString()
 
         await putUser(user)
+
+        if (user.Invocations === 2) {
+            // Second invocation
+            return handlerInput.responseBuilder.speak(speech.secondInvocation).getResponse()
+        }
 
         return PlayNewsIntentHandler.handle(handlerInput)
     },

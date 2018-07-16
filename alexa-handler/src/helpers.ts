@@ -154,12 +154,51 @@ function generateAudioMetadata(newsItem: INewsItemDDB): interfaces.audioplayer.A
     }
 }
 
+async function generateCardBodyWithFreshNews(handerInput: ASK.HandlerInput): Promise<string> {
+    const {
+        getUser,
+        getNews,
+    } = handerInput.attributesManager.getRequestAttributes() as IRequestAttributes
+
+    const news = await getNews()
+    const user = await getUser()
+
+    if (!user) {
+        throw new Error('generateCardBodyWithFreshNews(): user is undefined.')
+    }
+
+    let card = ''
+    let freshNewsItemFound = false
+    let count = 1
+
+    for (const newsItem of news) {
+        if (freshNewsItemFound) {
+            card += `${count}. ${newsItem.Title}.\n`
+            count++
+        }
+
+        if (newsItem.Id === user.LastPlayedItem) {
+            freshNewsItemFound = true
+        }
+    }
+
+    if (!freshNewsItemFound) {
+        // send all news
+        news.forEach((item, idx) => {
+            card += `${idx + 1}. ${item.Title}.\n`
+        })
+    }
+
+    return card
+}
+
 export {
     createNewUser,
     getNextNewsItem,
     getNewsItemById,
     getPreviousNewsItem,
     generateAudioMetadata,
+    generateCardBodyWithFreshNews,
     extractToken,
     isAccessedToday,
 }

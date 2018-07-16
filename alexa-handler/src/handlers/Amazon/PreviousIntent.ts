@@ -56,7 +56,6 @@ export const PreviousIntentHandler: ASK.RequestHandler = {
                 undefined,
                 generateAudioMetadata(lastPlayedItem)
             )
-            .withStandardCard(lastPlayedItem.Title, '', lastPlayedItem.ImageURL)
             .getResponse()
 
         return handlerInput.responseBuilder.speak('Previous').getResponse()

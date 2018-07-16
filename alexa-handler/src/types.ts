@@ -32,6 +32,7 @@ interface IRequestAttributes {
     createNewUser(): IUserDDB
     extractToken(): IRequestToken
     generateAudioMetadata(newsItem: INewsItemDDB): any
+    generateCardBodyWithFreshNews(): Promise<string>
     getNews(): Promise<INewsItemDDB[]>
     getNewsItemById(newsItemId: string): Promise<INewsItemDDB | undefined>
     getNextNewsItem(currentNewsId: string): Promise<INewsItemDDB | undefined>

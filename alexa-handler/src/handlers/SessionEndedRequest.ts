@@ -7,6 +7,7 @@ export const SessionEndedRequestHandler: ASK.RequestHandler = {
     },
     handle(handlerInput) {
         log('---', 'SessionEndedRequest')
+
         return handlerInput.responseBuilder.getResponse()
     },
 }
