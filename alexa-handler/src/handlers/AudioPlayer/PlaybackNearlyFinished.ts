@@ -12,6 +12,7 @@ export const PlaybackNearlyFinishedHandler: ASK.RequestHandler = {
             getNextNewsItem,
             extractToken,
             generateAudioMetadata,
+            getRemainingNewsNumber,
         } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
 
         const { type, id } = extractToken()
@@ -54,7 +55,10 @@ export const PlaybackNearlyFinishedHandler: ASK.RequestHandler = {
                         `${type}:${nextNewsItem.Id}`,
                         0,
                         `${type}:${id}`,
-                        generateAudioMetadata(nextNewsItem)
+                        generateAudioMetadata(
+                            nextNewsItem,
+                            await getRemainingNewsNumber(nextNewsItem)
+                        )
                     )
                     .getResponse()
 

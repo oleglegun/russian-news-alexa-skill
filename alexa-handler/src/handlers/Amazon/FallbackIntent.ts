@@ -9,12 +9,33 @@ export const FallbackIntentHandler: ASK.RequestHandler = {
             handlerInput.requestEnvelope.request.intent.name === 'AMAZON.FallbackIntent'
         )
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         log('---', 'FallbackIntent')
 
-        return handlerInput.responseBuilder
-            .speak(speech.error)
-            .reprompt(speech.error)
-            .getResponse()
+        const {
+            getUser,
+        } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
+
+        const user = await getUser()
+
+        if (!user) {
+            throw new Error('ErrorHandler: user is undefined')
+        }
+
+        switch (user.Role) {
+            case 'ADMIN':
+            case 'TESTER':
+                return handlerInput.responseBuilder
+                    .speak(speech.fallbackTester)
+                    .withSimpleCard(
+                        'Russian News Fallback',
+                        JSON.stringify(handlerInput.requestEnvelope)
+                    )
+                    .getResponse()
+
+            default:
+                return handlerInput.responseBuilder.getResponse()
+        }
+        return handlerInput.responseBuilder.speak(speech.fallbackTester).getResponse()
     },
 }

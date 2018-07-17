@@ -39,10 +39,7 @@ export const LaunchRequestHandler: ASK.RequestHandler = {
         // Devices
         const deviceId = handlerInput.requestEnvelope.context.System.device.deviceId
 
-        if (user.Devices[deviceId]) {
-            // Device found
-            user.Devices[deviceId].ItemsConsumed++
-        } else {
+        if (!user.Devices[deviceId]) {
             // Add new device
             user.Devices[deviceId] = {
                 ItemsConsumed: 0,
@@ -56,11 +53,6 @@ export const LaunchRequestHandler: ASK.RequestHandler = {
         user.LastAccess = new Date().toISOString()
 
         await putUser(user)
-
-        if (user.Invocations === 2) {
-            // Second invocation
-            return handlerInput.responseBuilder.speak(speech.secondInvocation).getResponse()
-        }
 
         return PlayNewsIntentHandler.handle(handlerInput)
     },

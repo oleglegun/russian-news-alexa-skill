@@ -17,6 +17,8 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
             generateCardBodyWithFreshNews,
             getNextNewsItem,
             getUser,
+            getRemainingNewsNumber,
+            putUser,
         } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
 
         const user = await getUser()
@@ -30,6 +32,22 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
                 return handlerInput.responseBuilder.speak(speech.noNews).getResponse()
             }
 
+            if (user.Invocations === 2) {
+                user.Invocations++
+                await putUser(user)
+
+                // Second invocation
+                return handlerInput.responseBuilder
+                    .speak(speech.secondInvocation)
+                    .reprompt('Please, say start to begin')
+                    .withStandardCard(
+                        'Russian News Help',
+                        speech.help,
+                        'https://russian-news.s3.amazonaws.com/russian-news-help.png'
+                    )
+                    .getResponse()
+            }
+
             return handlerInput.responseBuilder
                 .addAudioPlayerPlayDirective(
                     'REPLACE_ALL',
@@ -37,7 +55,7 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
                     `ITEM:${newsItem.Id}`,
                     0,
                     undefined,
-                    generateAudioMetadata(newsItem)
+                    generateAudioMetadata(newsItem, await getRemainingNewsNumber(newsItem))
                 )
                 .withStandardCard(
                     'Свежие новости',
@@ -61,7 +79,7 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
                 `ITEM:${newsItem.Id}`,
                 0,
                 undefined,
-                generateAudioMetadata(newsItem)
+                generateAudioMetadata(newsItem, await getRemainingNewsNumber(newsItem))
             )
             .withStandardCard(
                 'Свежие новости',

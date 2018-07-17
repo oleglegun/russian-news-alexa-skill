@@ -9,7 +9,7 @@ export const PauseIntentHandler: ASK.RequestHandler = {
         )
     },
     handle(handlerInput) {
-        log('---', 'PauseIntent')
+        log('---', 'Pause')
 
         return handlerInput.responseBuilder.addAudioPlayerStopDirective().getResponse()
     },

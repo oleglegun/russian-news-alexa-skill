@@ -31,13 +31,14 @@ interface IRequestToken {
 interface IRequestAttributes {
     createNewUser(): IUserDDB
     extractToken(): IRequestToken
-    generateAudioMetadata(newsItem: INewsItemDDB): any
+    generateAudioMetadata(newsItem: INewsItemDDB, getRemainingNewsNumber?: number): any
     generateCardBodyWithFreshNews(): Promise<string>
     getNews(): Promise<INewsItemDDB[]>
     getNewsItemById(newsItemId: string): Promise<INewsItemDDB | undefined>
     getNextNewsItem(currentNewsId: string): Promise<INewsItemDDB | undefined>
     getPreviousNewsItem(currentNewsId: string): Promise<INewsItemDDB | undefined>
     getUser(): Promise<IUserDDB | undefined>
+    getRemainingNewsNumber(newsItem: INewsItemDDB): Promise<number>
     putUser(attributes: IUserDDB): Promise<void>
     supportsDisplay(): boolean
 }

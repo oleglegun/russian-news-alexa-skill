@@ -38,6 +38,28 @@ async function getNextNewsItem(
     return news[currentIdx + 1]
 }
 
+async function getRemainingNewsNumber(
+    handerInput: ASK.HandlerInput,
+    newsItem: INewsItemDDB
+): Promise<number> {
+    const { getNews } = handerInput.attributesManager.getRequestAttributes() as IRequestAttributes
+
+    const news = await getNews()
+
+    const len = news.length
+
+    let remainingNewsNumber = 0
+
+    for (let i = 0; i < len; i++) {
+        if (newsItem.Id === news[i].Id) {
+            remainingNewsNumber = len - i - 1
+            break
+        }
+    }
+
+    return remainingNewsNumber
+}
+
 async function getNewsItemById(
     handlerInput: ASK.HandlerInput,
     newsItemId: string
@@ -139,10 +161,27 @@ function isAccessedToday(user: IUserDDB): boolean {
     )
 }
 
-function generateAudioMetadata(newsItem: INewsItemDDB): interfaces.audioplayer.AudioItemMetadata {
+function generateAudioMetadata(
+    newsItem: INewsItemDDB,
+    remainingNewsNumber?: number
+): interfaces.audioplayer.AudioItemMetadata {
+    if (remainingNewsNumber) {
+        return {
+            title: newsItem.Title,
+            subtitle: `Осталось ${remainingNewsNumber} ${pluralize(remainingNewsNumber, 'новост')}`,
+            art: {
+                contentDescription: 'News',
+                sources: [
+                    {
+                        url: newsItem.ImageURL,
+                    },
+                ],
+            },
+        }
+    }
+
     return {
         title: newsItem.Title,
-        subtitle: 'Russian News Skill',
         art: {
             contentDescription: 'News',
             sources: [
@@ -192,13 +231,27 @@ async function generateCardBodyWithFreshNews(handerInput: ASK.HandlerInput): Pro
     return card
 }
 
+function pluralize(num: number, noun: string): string {
+    if (num === 0 || num > 4) {
+        return noun + 'ей'
+    }
+
+    if (num === 1) {
+        return noun + 'ь'
+    }
+
+    return noun + 'и'
+}
+
 export {
     createNewUser,
     getNextNewsItem,
     getNewsItemById,
     getPreviousNewsItem,
+    getRemainingNewsNumber,
     generateAudioMetadata,
     generateCardBodyWithFreshNews,
     extractToken,
     isAccessedToday,
+    pluralize,
 }

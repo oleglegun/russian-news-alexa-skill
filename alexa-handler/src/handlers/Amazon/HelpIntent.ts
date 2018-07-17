@@ -13,9 +13,12 @@ export const HelpIntentHandler: ASK.RequestHandler = {
         log('---', 'HelpIntent')
 
         return handlerInput.responseBuilder
-            .speak(speech.help)
-            .reprompt(speech.help)
-            .withSimpleCard('Help', speech.help)
+            .speak(speech.help + `I've sent all the information to you Alexa app.`)
+            .withStandardCard(
+                'Russian News Help',
+                speech.help,
+                'https://russian-news.s3.amazonaws.com/russian-news-help.png'
+            )
             .getResponse()
     },
 }

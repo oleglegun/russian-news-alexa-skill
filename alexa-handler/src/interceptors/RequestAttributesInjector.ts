@@ -8,6 +8,7 @@ import {
     getNewsItemById,
     getNextNewsItem,
     getPreviousNewsItem,
+    getRemainingNewsNumber,
 } from '../helpers'
 
 export const RequestAttributesInjector: ASK.RequestInterceptor = {
@@ -52,6 +53,8 @@ export const RequestAttributesInjector: ASK.RequestInterceptor = {
             getPreviousNewsItem: async (currentNewsItemId: string) =>
                 getPreviousNewsItem(handlerInput, currentNewsItemId),
             getUser: async () => getUserAttributesMemoized(userId),
+            getRemainingNewsNumber: async (newsItem: INewsItemDDB) =>
+                await getRemainingNewsNumber(handlerInput, newsItem),
             putUser: async (attributes: IUserDDB) => putUserAttributes(userId, attributes),
         } as IRequestAttributes)
     },
