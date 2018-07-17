@@ -38,6 +38,8 @@ function addSSML(news: INewsItemRSS[]): INewsItemRSSWithSSML[] {
     const newsWithSSML: INewsItemRSSWithSSML[] = []
 
     for (const item of news) {
+        pollyRuSSML.configure({ globalVolume: 'x-loud', rate: 'slow' })
+
         const ssml =
             '<speak>' +
             pollyRuSSML.ssml(item.title) +
