@@ -12,14 +12,15 @@ export const StartOverIntentHandler: ASK.RequestHandler = {
         log('---', 'StartOverIntent')
 
         const {
+            generateAudioMetadata,
+            generateCardBodyWithFreshNews,
             getNews,
+            getRemainingNewsNumber,
             getUser,
             putUser,
-            generateAudioMetadata,
         } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
 
         const news = await getNews()
-
         const user = await getUser()
 
         if (!user) {
@@ -40,7 +41,12 @@ export const StartOverIntentHandler: ASK.RequestHandler = {
                 `ITEM:${newsItem.Id}`,
                 0,
                 undefined,
-                generateAudioMetadata(newsItem)
+                generateAudioMetadata(newsItem, await getRemainingNewsNumber(newsItem))
+            )
+            .withStandardCard(
+                'Свежие новости',
+                await generateCardBodyWithFreshNews(),
+                newsItem.ImageURL
             )
             .getResponse()
     },
