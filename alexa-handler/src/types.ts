@@ -31,7 +31,7 @@ interface IRequestToken {
 interface IRequestAttributes {
     createNewUser(): IUserDDB
     extractToken(): IRequestToken
-    generateAudioMetadata(newsItem: INewsItemDDB, getRemainingNewsNumber?: number): any
+    generateAudioMetadata(newsItem: INewsItemDDB, remainingNewsNumber?: number): any
     generateCardBodyWithFreshNews(): Promise<string>
     getNews(): Promise<INewsItemDDB[]>
     getNewsItemById(newsItemId: string): Promise<INewsItemDDB | undefined>

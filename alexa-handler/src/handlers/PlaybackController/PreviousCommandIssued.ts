@@ -1,16 +1,14 @@
 import * as ASK from 'ask-sdk-core'
-import speech from '../../speech'
 import log from '../../log'
 
-export const PreviousIntentHandler: ASK.RequestHandler = {
+export const PreviousCommandIssuedHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
         return (
-            handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-            handlerInput.requestEnvelope.request.intent.name === 'AMAZON.PreviousIntent'
+            handlerInput.requestEnvelope.request.type === 'PlaybackController.PreviousCommandIssued'
         )
     },
     async handle(handlerInput) {
-        log('---', 'PreviousIntent')
+        log('---', 'PreviousCommandIssued')
 
         const {
             getPreviousNewsItem,
@@ -18,6 +16,7 @@ export const PreviousIntentHandler: ASK.RequestHandler = {
             putUser,
             getNewsItemById,
             generateAudioMetadata,
+            getRemainingNewsNumber,
         } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
 
         const user = await getUser()
@@ -28,11 +27,10 @@ export const PreviousIntentHandler: ASK.RequestHandler = {
 
         const id = user.LastPlayedItem
         const lastPlayedItem = await getNewsItemById(id)
-
         const beforeLastPlayedItem = await getPreviousNewsItem(id)
 
         if (!lastPlayedItem) {
-            return handlerInput.responseBuilder.speak(speech.isOldestNewsItem).getResponse()
+            return handlerInput.responseBuilder.getResponse()
         }
 
         if (beforeLastPlayedItem) {
@@ -43,7 +41,6 @@ export const PreviousIntentHandler: ASK.RequestHandler = {
         }
 
         user.LastAccess = new Date().toISOString()
-
         await putUser(user)
 
         return handlerInput.responseBuilder
@@ -53,7 +50,7 @@ export const PreviousIntentHandler: ASK.RequestHandler = {
                 `ITEM:${lastPlayedItem.Id}`,
                 0,
                 undefined,
-                generateAudioMetadata(lastPlayedItem)
+                generateAudioMetadata(lastPlayedItem, await getRemainingNewsNumber(lastPlayedItem))
             )
             .getResponse()
     },

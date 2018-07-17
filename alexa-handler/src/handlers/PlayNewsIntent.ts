@@ -16,8 +16,8 @@ export const PlayNewsIntentHandler: ASK.RequestHandler = {
             generateAudioMetadata,
             generateCardBodyWithFreshNews,
             getNextNewsItem,
-            getUser,
             getRemainingNewsNumber,
+            getUser,
             putUser,
         } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
 

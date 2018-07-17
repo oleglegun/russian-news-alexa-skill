@@ -19,6 +19,11 @@ import { ResumeIntentHandler } from './handlers/Amazon/ResumeIntent'
 import { SessionEndedRequestHandler } from './handlers/SessionEndedRequest'
 import { StartOverIntentHandler } from './handlers/Amazon/StartOverIntent'
 import { StopIntentHandler } from './handlers/Amazon/StopIntent'
+import { NextCommandIssuedHandler } from './handlers/PlaybackController/NextCommandIssued'
+import { PreviousCommandIssuedHandler } from './handlers/PlaybackController/PreviousCommandIssued'
+import { PauseCommandIssuedHandler } from './handlers/PlaybackController/PauseCommandIssued'
+import { PlayCommandIssuedHandler } from './handlers/PlaybackController/PlayCommandIssued'
+import { ExceptionEncounteredHandler } from './handlers/ExceptionEncountered'
 
 import { Logger } from './interceptors/Logger'
 import { RequestAttributesInjector } from './interceptors/RequestAttributesInjector'
@@ -40,10 +45,15 @@ export const handler = ASK.SkillBuilders.custom()
         ResumeIntentHandler,
         StartOverIntentHandler,
         HelpIntentHandler,
+        NextCommandIssuedHandler,
+        PreviousCommandIssuedHandler,
+        PauseCommandIssuedHandler,
+        PlayCommandIssuedHandler,
         SessionEndedRequestHandler,
         DisplayIntentsHandler,
         PlaybackFailedHandler,
-        FallbackIntentHandler
+        FallbackIntentHandler,
+        ExceptionEncounteredHandler
     )
     .addErrorHandlers(ErrorHandler)
     .addRequestInterceptors(RequestAttributesInjector)

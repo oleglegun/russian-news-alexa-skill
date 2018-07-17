@@ -15,7 +15,7 @@ export const ErrorHandler: ASK.ErrorHandler = {
         const user = await getUser()
 
         if (!user) {
-            throw new Error('ErrorHandler: user is undefined')
+            throw new Error(`"user" is undefined`)
         }
 
         switch (user.Role) {

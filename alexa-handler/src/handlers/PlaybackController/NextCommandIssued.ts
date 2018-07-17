@@ -1,23 +1,19 @@
 import * as ASK from 'ask-sdk-core'
-import speech from '../../speech'
 import log from '../../log'
 
-export const NextIntentHandler: ASK.RequestHandler = {
+export const NextCommandIssuedHandler: ASK.RequestHandler = {
     canHandle(handlerInput) {
-        return (
-            handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-            handlerInput.requestEnvelope.request.intent.name === 'AMAZON.NextIntent'
-        )
+        return handlerInput.requestEnvelope.request.type === 'PlaybackController.NextCommandIssued'
     },
     async handle(handlerInput) {
-        log('---', 'NextIntent')
+        log('---', 'NextCommandIssued')
 
         const {
             getUser,
             putUser,
             getNextNewsItem,
             generateAudioMetadata,
-            getRemainingNewsNumber
+            getRemainingNewsNumber,
         } = handlerInput.attributesManager.getRequestAttributes() as IRequestAttributes
 
         const user = await getUser()
@@ -41,10 +37,7 @@ export const NextIntentHandler: ASK.RequestHandler = {
         nextNewsItem = await getNextNewsItem(nextNewsItem.Id)
 
         if (!nextNewsItem) {
-            return handlerInput.responseBuilder
-                .speak(speech.noNews)
-                .addAudioPlayerStopDirective()
-                .getResponse()
+            return handlerInput.responseBuilder.getResponse()
         }
 
         return handlerInput.responseBuilder
